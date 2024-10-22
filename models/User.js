@@ -33,6 +33,10 @@ const userSchema = new Schema({
         type: String,
         required: true,
     },
+    teacherName : {
+        type: String,
+        required: true,
+    },
     gender: {
         type: String,
         required: true,

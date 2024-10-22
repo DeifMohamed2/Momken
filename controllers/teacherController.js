@@ -7,9 +7,7 @@ const PDF = require('../models/PDFs');
 const Attendance = require('../models/Attendance');
 const mongoose = require('mongoose');
 
-const waapi = require('@api/waapi');
-const waapiAPI = process.env.WAAPIAPI;
-waapi.auth(`${waapiAPI}`);
+;
 
 const Excel = require('exceljs');
 
@@ -33,20 +31,20 @@ const dash_get = (req, res) => {
   //   });
 
 
-  res.render('teacher/dash', { title: 'DashBoard', path: req.path });
+  res.render('teacher/dash', { title: 'DashBoard', path: req.path , userData : req.userData});
 };
 
 const myStudent_get = (req, res) => {
   res.render('teacher/myStudent', {
     title: 'Mystudent',
     path: req.path,
-    userData: null,
+    userData: req.userData,
     attendance: null,
   });
 };
 
 const homeWork_get = (req, res) => {
-  res.render('teacher/homeWork', { title: 'HomeWork', path: req.path });
+  res.render('teacher/homeWork', { title: 'HomeWork', path: req.path , userData : req.userData});
 };
 
 // const studentsRequests_get = (req, res) => {
@@ -59,6 +57,7 @@ const addVideo_get = (req, res) => {
   res.render('teacher/addVideo', {
     title: 'AddVideo',
     path: req.path,
+    userData : req.userData,
     chaptersData: null,
   });
 };
@@ -111,6 +110,7 @@ const getAllChapters = async (req, res) => {
       res.status(200).render('teacher/addVideo', {
         title: 'AddVideo',
         path: req.path,
+        userData: req.userData,
         chaptersData: data,
       });
     });
@@ -249,6 +249,7 @@ const handleVideos_get = (req, res) => {
   res.render('teacher/handleVideos', {
     title: 'Handle Videos',
     path: req.path,
+    userData: req.userData,
     chaptersData: null,
     chapterData: null,
     videoData: null,
@@ -274,6 +275,7 @@ const getAllChaptersInHandle = async (req, res) => {
       res.status(200).render('teacher/handleVideos', {
         title: 'AddVideo',
         path: req.path,
+        userData: req.userData,
         chaptersData: data,
         chapterData: null,
         videoData: null,
@@ -305,6 +307,7 @@ const getChapterDataToEdit = async (req, res) => {
       res.status(200).render('teacher/handleVideos', {
         title: 'AddVideo',
         path: req.path,
+        userData: req.userData,
         chapterData: data,
         chaptersData: null,
         videoData: null,
@@ -447,6 +450,7 @@ const getSingleVideoAllData = async (req, res) => {
             res.render('teacher/handleVideos', {
               title: 'AddVideo',
               path: req.path,
+              userData: req.userData,
               chapterData: null,
               chaptersData: data,
               videoData: videoData,
@@ -669,12 +673,13 @@ const convertToExcel = async (req, res) => {
 let query;
 const studentsRequests_get = async (req, res) => {
   try {
-    const { Grade, studentPlace } = req.query;
+    const { teacherName, Grade, studentPlace } = req.query;
     let grade = Grade || 'Grade1';
     let StudentPlace = studentPlace || 'All';
+    let teachername = teacherName || req.userData.teacherName;
     // Define the base query object
-    query = { Grade: grade };
-
+    query = { Grade: grade, teacherName: teachername };
+    console.log(query);
     // If studentPlace is not "All", include it in the query
 
     if (StudentPlace !== 'All') {
@@ -705,11 +710,13 @@ const studentsRequests_get = async (req, res) => {
         res.render('teacher/studentsRequests', {
           title: 'StudentsRequests',
           path: req.path,
+          userData: req.userData,
           modalData: null,
           modalDelete: null,
           studentsRequests: result,
           studentPlace: StudentPlace,
           Grade: grade,
+          teacherName: teachername,
           isSearching: false,
           nextPage: hasNextPage ? nextPage : null,
           previousPage: hasPreviousPage ? page - 1 : null, // Calculate previous page
@@ -730,6 +737,7 @@ const searchForUser = async (req, res) => {
       res.render('teacher/studentsRequests', {
         title: 'StudentsRequests',
         path: req.path,
+        userData: req.userData,
         modalData: null,
         modalDelete: null,
         studentsRequests: result,
@@ -862,6 +870,7 @@ const getSingleUserAllData = async (req, res) => {
       res.render('teacher/studentsRequests', {
         title: 'StudentsRequests',
         path: req.path,
+        userData: req.userData,
         modalData: result,
         modalDelete: null,
         studentsRequests: null,
@@ -933,6 +942,7 @@ const confirmDeleteStudent = async (req, res) => {
     res.render('teacher/studentsRequests', {
       title: 'StudentsRequests',
       path: req.path,
+      userData: req.userData,
       modalData: null,
       modalDelete: studentID,
       studentsRequests: null,
@@ -984,6 +994,7 @@ const searchToGetOneUserAllData = async (req, res) => {
     res.render('teacher/myStudent', {
       title: 'Mystudent',
       path: req.path,
+      userData: req.userData,
       userData: result,
       attendance: attendance.cardHistory,
     });
@@ -1194,6 +1205,7 @@ const addQuiz_get = async (req, res) => {
   res.render('teacher/addQuiz', {
     title: 'AddQuiz',
     path: req.path,
+    userData: req.userData,
     questions: quizQuestions,
     videoData: videoData,
     quizData: quizData,
@@ -1226,6 +1238,7 @@ const addQuestion = (req, res) => {
   res.render('teacher/addQuiz', {
     title: 'AddQuiz',
     path: req.path,
+    userData: req.userData,
     questions: quizQuestions,
     videoData: null,
     quizData: null,
@@ -1250,6 +1263,7 @@ const deleteQuestion = (req, res) => {
   res.render('teacher/addQuiz', {
     title: 'AddQuiz',
     path: req.path,
+    userData: req.userData,
     questions: quizQuestions,
     videoData: null,
     quizData: null,
@@ -1293,6 +1307,7 @@ const updateQuestion = (req, res) => {
   res.render('teacher/addQuiz', {
     title: 'AddQuiz',
     path: req.path,
+    userData: req.userData,
     questions: quizQuestions,
     videoData: null,
     quizData: null,
@@ -1311,6 +1326,7 @@ const getQuizAlldata = async (req, res) => {
       res.render('teacher/addQuiz', {
         title: 'AddQuiz',
         path: req.path,
+        userData: req.userData,
         questions: result['Questions'],
         videoData: null,
         quizData: null,
@@ -1393,6 +1409,7 @@ const quizSubmit = (req, res) => {
     return res.render('teacher/addQuiz', {
       title: 'AddQuiz',
       path: req.path,
+      userData: req.userData,
       questions: quizQuestions,
       errors: errors,
       videsPrerequested: null,
@@ -1495,6 +1512,7 @@ const handleQuizzes = (req, res) => {
   res.render('teacher/handleQuizzes', {
     title: 'handleQuizzes',
     path: req.path,
+    userData: req.userData,
     quizzesNamesData: null,
     studetsData: null,
     quizID: null,
@@ -1513,6 +1531,7 @@ const getQuizzesNames = async (req, res) => {
       res.render('teacher/handleQuizzes', {
         title: 'handleQuizzes',
         path: req.path,
+        userData: req.userData,
         quizzesNamesData: result,
         studetsData: null,
         quizID: null,
@@ -1579,6 +1598,7 @@ const getStudentsDataOfQuiz = async (req, res) => {
         res.render('teacher/handleQuizzes', {
           title: 'handleQuizzes',
           path: req.path,
+          userData: req.userData,
           quizzesNamesData: null,
           studetsData: result,
           quizID: quizID,
@@ -1632,6 +1652,7 @@ const searchForUserInQuiz = async (req, res) => {
       res.render('teacher/handleQuizzes', {
         title: 'handleQuizzes',
         path: req.path,
+        userData: req.userData,
         quizzesNamesData: null,
         studetsData: result.length > 0 ? result : null,
         quizID: null,
@@ -1792,6 +1813,7 @@ const Codes_get = (req, res) => {
   res.render('teacher/Codes', {
     title: 'Codes',
     path: req.path,
+    userData: req.userData,
     data: null,
     Grade: null,
     type: null,
@@ -1843,6 +1865,7 @@ const getChptersOrVideosData = async (req, res) => {
         res.render('teacher/Codes', {
           title: 'Codes',
           path: req.path,
+          userData: req.userData,
           data: data,
           Grade: Grade,
           type: type,
@@ -1861,6 +1884,7 @@ const getChptersOrVideosData = async (req, res) => {
         res.render('teacher/Codes', {
           title: 'Codes',
           path: req.path,
+          userData: req.userData,
           data: data,
           Grade: Grade,
           type: type,
@@ -2166,6 +2190,7 @@ const handelCodes_get = async (req, res) => {
         res.render('teacher/handelCodes', {
           title: 'Codes',
           path: req.path,
+          userData: req.userData,
           namesData: data,
           CodesData: null,
           type: type,
@@ -2223,6 +2248,7 @@ const handelCodes_get = async (req, res) => {
           res.render('teacher/handelCodes', {
             title: 'handel Codes',
             path: req.path,
+            userData: req.userData,
             namesData: null,
             CodesData: null,
             type: null,
@@ -2249,6 +2275,7 @@ const handelCodes_get = async (req, res) => {
             res.render('teacher/handelCodes', {
               title: 'Codes',
               path: req.path,
+              userData: req.userData,
               namesData: null,
               CodesData: result,
               type: type,
@@ -2263,6 +2290,7 @@ const handelCodes_get = async (req, res) => {
         res.render('teacher/handelCodes', {
           title: 'Codes',
           path: req.path,
+          userData: req.userData,
           namesData: data,
           CodesData: null,
           type: type,
@@ -2288,6 +2316,7 @@ const handelCodes_get = async (req, res) => {
               res.render('teacher/handelCodes', {
                 title: 'Codes',
                 path: req.path,
+                userData: req.userData,
                 namesData: null,
                 CodesData: result,
                 type: null,
@@ -2302,6 +2331,7 @@ const handelCodes_get = async (req, res) => {
           res.render('teacher/handelCodes', {
             title: 'handel Codes',
             path: req.path,
+            userData: req.userData,
             namesData: null,
             CodesData: null,
             type: null,
@@ -2328,6 +2358,7 @@ const searchToGetCode = async (req, res) => {
       res.render('teacher/handelCodes', {
         title: 'Codes',
         path: req.path,
+        userData: req.userData,
         namesData: null,
         CodesData: result,
         type: t || null,
@@ -2344,7 +2375,11 @@ const searchToGetCode = async (req, res) => {
 // ================================================== END Handel Codes ================================================ //
 
 const PDFPost_get = (req, res) => {
-  res.render('teacher/PDFPost', { title: 'PDFPost', path: req.path });
+  res.render('teacher/PDFPost', {
+    title: 'PDFPost',
+    path: req.path,
+    userData: req.userData,
+  });
 };
 
 const PDFPost_post = async (req, res) => {
@@ -2370,7 +2405,11 @@ const PDFPost_post = async (req, res) => {
 
 // =================================================== Add Card  &&  Attendance =================================================== //
 const addCardGet = async (req, res) => {
-  res.render('teacher/addCard', { title: 'addCard', path: req.path });
+  res.render('teacher/addCard', {
+    title: 'addCard',
+    path: req.path,
+    userData: req.userData,
+  });
 };
 
 const addCardToStudent = async (req, res) => {
@@ -2638,24 +2677,7 @@ const convertAttendanceToExcel = async (req, res) => {
       nPhone: nphone,
     });
 
-    attendanceRecord['Students'].forEach(async (student) => {
-      let message = `
-        تم حضور الطالب : ${student.Username} الان في سنتر ${centerName} في مجموعه الساعه ${GroupTime}
-      `;
-      await waapi
-        .postInstancesIdClientActionSendMessage(
-          {
-            chatId: `2${student.parentPhone}@c.us`,
-            message: message,
-          },
-          { id: '23175' }
-        )
-        .then((result) => {
-          req.io.emit('sendingToParents', {
-            nPhone: ++nphone,
-          });
-        });
-    });
+
 
     if (!attendanceRecord) {
       return res
@@ -2743,6 +2765,7 @@ const handelAttendanceGet = async (req, res) => {
   res.render('teacher/handelAttendance', {
     title: 'handelAttendance',
     path: req.path,
+    userData: req.userData,
   });
 };
 
@@ -2887,7 +2910,11 @@ const convertAttendeesToExcel = async (req, res) => {
 // =================================================== Whats App =================================================== //
 
 const whatsApp_get = (req, res) => {
-  res.render('teacher/whatsApp', { title: 'whatsApp', path: req.path });
+  res.render('teacher/whatsApp', {
+    title: 'whatsApp',
+    path: req.path,
+    userData: req.userData,
+  });
 };
 
 const delay2 = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -2907,48 +2934,7 @@ const sendGradeMessages = async (req, res) => {
   });
 
   try {
-    for (const student of dataToSend) {
-      let message = `
-        عزيزي ولي امر الطالب : ${student[nameCloumnName]}.
-        
-        نود إبلاغكم بأنه تم تسجيل درجة ابنكم بنجاح في امتحان : ${quizName}.
-        
-        الدرجة التي حصل عليها: ${student[gradeCloumnName]}.
-        
-        نتمنى لابنكم المزيد من التفوق والنجاح.
-        
-        مع تحيات فريق التعليم.
-      `;
 
-      try {
-        await waapi.postInstancesIdClientActionSendMessage(
-          {
-            chatId: `20${student[phoneCloumnName]}@c.us`,
-            message: message,
-          },
-          { id: '23175' }
-        );
-
-        console.log('Message sent successfully');
-        req.io.emit('sendingMessages', {
-          nMessages: ++n,
-        });
-
-        // Add delay between messages to prevent getting banned
-        await delay2(10000); // 3-second delay between messages
-      } catch (err) {
-        console.error('Error sending message:', err);
-
-        // Optional: Handle specific errors based on status code
-        if (err.response && err.response.status === 429) {
-          console.error('Rate limit reached, slowing down...');
-          await delay2(2300); // 10-second delay if rate-limited
-        } else if (err.response && err.response.status === 403) {
-          console.error('Account banned or number blocked:', err);
-          // Optional: Add logic to notify admin about the issue
-        }
-      }
-    }
 
     res.status(200).json({ message: 'Messages sent successfully' });
   } catch (error) {
@@ -2976,23 +2962,6 @@ const sendMessages = async (req, res) => {
       ${message}
       `;
 
-      await waapi
-        .postInstancesIdClientActionSendMessage(
-          {
-            chatId: `2${student[phoneCloumnName]}@c.us`,
-            message: theMessage,
-          },
-          { id: '23175' }
-        )
-        .then((result) => {
-          console.log(result);
-          req.io.emit('sendingMessages', {
-            nMessages: ++n,
-          });
-        })
-        .catch((err) => {
-          console.error(err);
-        });
 
       // Add delay to avoid getting banned
       await delay(2300); // 10 seconds delay

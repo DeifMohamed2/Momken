@@ -1,12 +1,10 @@
 const User = require('../models/User');
 
-const waapi = require('@api/waapi');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
 const jwtSecret = process.env.JWTSECRET;
-const waapiAPI = process.env.WAAPIAPI;
-waapi.auth(`${waapiAPI}`);
+
+
 
 const home_page = (req, res) => {
   res.render('index', { title: 'Home Page' });
@@ -90,6 +88,7 @@ const public_Register_post = async (req, res) => {
     Markez,
     schoolName,
     Grade,
+    teacherName,
     gender,
     phone,
     parentPhone,
@@ -161,17 +160,32 @@ const public_Register_post = async (req, res) => {
   let videosInfo = [];
 
   if (Grade === 'Grade1') {
-    await User.findOne({ Grade: Grade, Code: 874325 }).then((result) => {
+    await User.findOne({ Grade: Grade, Code: 798979 }).then((result) => {
       quizesInfo = result.quizesInfo;
       videosInfo = result.videosInfo;
     });
   } else if (Grade === 'Grade2') {
-    await User.findOne({ Grade: Grade, Code: 736624 }).then((result) => {
+    await User.findOne({ Grade: Grade, Code: 725038 }).then((result) => {
       quizesInfo = result.quizesInfo;
       videosInfo = result.videosInfo;
     });
   } else if (Grade === 'Grade3') {
-    await User.findOne({ Grade: Grade, Code: 887426 }).then((result) => {
+    await User.findOne({ Grade: Grade, Code: 719362 }).then((result) => {
+      quizesInfo = result.quizesInfo;
+      videosInfo = result.videosInfo;
+    });
+  }else if (Grade === 'Grade4') {
+    await User.findOne({ Grade: Grade, Code: 941730 }).then((result) => {
+      quizesInfo = result.quizesInfo;
+      videosInfo = result.videosInfo;
+    });
+  }else if (Grade === 'Grade5') {
+    await User.findOne({ Grade: Grade, Code: 823263 }).then((result) => {
+      quizesInfo = result.quizesInfo;
+      videosInfo = result.videosInfo;
+    });
+  }else if (Grade === 'Grade6') {
+    await User.findOne({ Grade: Grade, Code: 936707 }).then((result) => {
       quizesInfo = result.quizesInfo;
       videosInfo = result.videosInfo;
     });
@@ -188,6 +202,7 @@ const public_Register_post = async (req, res) => {
       Markez: Markez,
       schoolName: schoolName,
       Grade: Grade,
+      teacherName: teacherName,
       gender: gender,
       phone: phone,
       parentPhone: parentPhone,
@@ -251,29 +266,7 @@ const send_verification_code = async (req, res) => {
     const code = Math.floor(Math.random() * 400000 + 600000);
     const message = `كود التحقق الخاص بك هو ${code}`;
 
-    // Send the message via the waapi (already present)
-    await waapi
-      .postInstancesIdClientActionSendMessage(
-        {
-          chatId: `2${phone}@c.us`,
-          message: message,
-        },
-        { id: '22432' }
-      )
-
-      .then(({ data }) => {
-        // Store the verification code and phone in the session or database
-        req.session.verificationCode = code; // Assuming session middleware is used
-        req.session.phone = phone;
-
-        // Send a successful response after setting the session
-        res.status(201).json({ success: true, data });
-      })
-      .catch((err) => {
-        // Handle any error that occurs during the waapi call
-        console.error(err);
-        res.status(500).json({ success: false, error: err });
-      });
+   
   } catch (error) {
     console.log(error);
     res.status(500).send('Internal Server Error');

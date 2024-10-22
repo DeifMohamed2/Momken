@@ -111,7 +111,7 @@
                 <ul class="contact__details">
                   <li>
                     <i class="uil uil-envelope"></i>
-                    <h5>info@BioDiva.com</h5>
+                    <h5>info@MomkeAcademy.org</h5>
                   </li>
                   <a  href="https://wa.me/+201096158217" target="_blank"><button type="button" class="btn btn-primary" ><i class="uil uil-whatsapp"></i> تفعيل حسابي عن طريق الواتساب </button></a>
   
@@ -226,14 +226,24 @@
                   <input type="number" name="parentPhone" id="parentPhone"
                     placeholder=" رقم هاتف ولي الامر " value="<%= formData.parentPhone || '' %>" required>
                 </div>
-                <div class="col-12 text-center">
-                  <select name="Grade" class="regSel" value="<%= formData.Grade || '' %>" required>
-                    <option  value=""> اختر الصف الدراسي </option>
-                    <option value="Grade1">الصف الاول الثانوي</option>
-                    <option value="Grade2">الصف الثاني الثانوي</option>
-                    <option value="Grade3"> الصف الثالث الثانوي </option>
+
+                 <div class="col-12 text-center">
+                  <select name="teacherName" class="regSel" value="<%= formData.Grade || '' %>" required>
+                    <option  value=""> اختر اسم المعلم</option>
+                    <option value="moamen">مستر مؤمن</option>
+                    <option value="noaman"> مستر نعمان</option>  
                   </select>
                 </div>
+
+                <div class="col-12 text-center">
+                  <select name="Grade" class="regSel" value="<%= formData.Grade || '' %>" required>
+                    <option value=""> اختر الصف الدراسي </option>
+                   
+                  </select>
+                </div>
+
+
+
                 <div class="col-12 text-center">
                   <h4 class="text-warning  mt-2">بتحضر معانا فين ؟</h4>
                 </div>
@@ -264,6 +274,52 @@
 
       <script src="/assest/bootstrap.min.js"></script>
       <script src="/assest/bootstrap.bundle.min.js"></script>
+
+
+    <script>
+      const teacherName = document.querySelector('select[name="teacherName"]');
+
+      teacherName.addEventListener('change', function() {
+        const gradeSelect = document.querySelector('select[name="Grade"]');
+        const selectedTeacher = teacherName.value;
+
+        // Clear existing options
+        gradeSelect.innerHTML = '';
+
+        gradeSelect.innerHTML = '<option value="">اختر الصف الدراسي</option>';
+        // Define grade options based on the selected teacher
+        let gradeOptions = [];
+        if (selectedTeacher === 'moamen') {
+          gradeOptions = [
+            { value: 'Grade1', text: 'الصف الاول الاعدادي' },
+            { value: 'Grade2', text: 'الصف الثاني الاعدادي' },
+            { value: 'Grade3', text: 'الصف الثالث الاعدادي' },
+            { value: 'Grade4', text: 'الصف الاول الثانوي' },
+            { value: 'Grade5', text: 'الصف الثاني الثانوي' },
+            { value: 'Grade6', text: 'الصف الثالث الثانوي' }
+          ];
+        } else if (selectedTeacher === 'noaman') {
+          gradeOptions = [
+              { value: 'Grade1', text: 'الصف الاول الاعدادي' },
+            { value: 'Grade2', text: 'الصف الثاني الاعدادي' },
+            { value: 'Grade3', text: 'الصف الثالث الاعدادي' },
+            { value: 'Grade4', text: 'الصف الاول الثانوي' },
+            { value: 'Grade5', text: 'الصف الثاني الثانوي' },
+            
+          ];
+        }
+
+        // Populate the grade select with new options
+        gradeOptions.forEach(option => {
+          const newOption = document.createElement('option');
+          newOption.value = option.value;
+          newOption.text = option.text;
+          gradeSelect.appendChild(newOption);
+        });
+      });
+
+    </script>
+
 
 
 

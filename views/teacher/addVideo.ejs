@@ -94,13 +94,13 @@
                                                     placeholder="عنوان Chapter" required></textarea>
                                             </div>
                                         </div>
-                                        <div class="col-md-1">
+                                        <!-- <div class="col-md-1">
                                             <select class="Grade" id="ARorEN" name="ARorEN"
                                             required>
                                             <option selected value="AR"> عربي </option>
                                             <option value="EN"> لغات  </option>
                                              </select>
-                                        </div>
+                                        </div> -->
                                         <div class="col-md-3 ">
                                             <select class="Grade" name="chapterGrade" required>
                                                 <option value="">اختر الصف الدراسي </option>
@@ -136,7 +136,7 @@
                         </div>
 
                         <div class="row addToChapterStructure">
-                          <h1>Add To Chapter - > عدد الفيديوهات : <span id="mediaCount"></span></h1>
+                          <h1>Add To Chapter </h1>
 
 
                             <h2 id="waiting" style="display: none;">wait please ...</h2>
@@ -479,27 +479,28 @@ const sdieMenu = document.querySelector("aside");
 
 
 <script >
-    const BTNvideoUpload = document.getElementById("BtnVideoUpload");
 
-const apiKey = '3f0935f58dfacc2603bce1da33605cd6cb27b3f80c9cfb4e365246107f19e428';
-const projectId = 'v1hmxwnv7u'; 
-let embded 
+const BTNvideoUpload = document.getElementById("BtnVideoUpload");
 
-const options = {
-  method: 'GET',
-  headers: {
-    accept: 'application/json',
-    authorization: `Bearer ${apiKey}`
-  }
-};
+// const apiKey = '3f0935f58dfacc2603bce1da33605cd6cb27b3f80c9cfb4e365246107f19e428';
+// const projectId = 'v1hmxwnv7u'; 
+// let embded 
 
-fetch('https://api.wistia.com/v1/projects', options)
-  .then(response => response.json())
-  .then(response => {
-    const mediaCount  = document.getElementById('mediaCount')
-    mediaCount.innerHTML = response[0].mediaCount
-  })
-  .catch(err => console.error(err));
+// const options = {
+//   method: 'GET',
+//   headers: {
+//     accept: 'application/json',
+//     authorization: `Bearer ${apiKey}`
+//   }
+// };
+
+// fetch('https://api.wistia.com/v1/projects', options)
+//   .then(response => response.json())
+//   .then(response => {
+//     const mediaCount  = document.getElementById('mediaCount')
+//     mediaCount.innerHTML = response[0].mediaCount
+//   })
+//   .catch(err => console.error(err));
 
 
 
