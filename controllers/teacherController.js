@@ -30,7 +30,8 @@ const dash_get = (req, res) => {
   //       console.error("Error deleting users:", error);
   //   });
 
-
+  
+  console.log(req.userData);
   res.render('teacher/dash', { title: 'DashBoard', path: req.path , userData : req.userData});
 };
 
@@ -39,7 +40,8 @@ const myStudent_get = (req, res) => {
     title: 'Mystudent',
     path: req.path,
     userData: req.userData,
-    attendance: null,
+    studentData:null,
+  
   });
 };
 
@@ -68,7 +70,7 @@ const chapter_post = (req, res) => {
     chapterGrade,
     chapterAccessibility,
     chapterPrice,
-    ARorEN,
+    
   } = req.body;
 
   const chapter = new Chapter({
@@ -76,13 +78,14 @@ const chapter_post = (req, res) => {
     chapterGrade: chapterGrade || '',
     chapterAccessibility: chapterAccessibility || ' ',
     chapterPrice: chapterPrice || 0,
-    ARorEN: ARorEN,
+    ARorEN: 'AR',
+    teacherName : req.userData.teacherName,
     chapterLectures: [],
     chapterSummaries: [],
     chapterSolvings: [],
   });
 
-  if (!chapterName || !chapterGrade || !chapterAccessibility || !ARorEN) {
+  if (!chapterName || !chapterGrade || !chapterAccessibility ) {
     return res.status(400).send('Missing required fields');
   }
 
@@ -97,7 +100,8 @@ const getAllChapters = async (req, res) => {
     const data = [];
     const { chapterGrade } = req.body;
     await Chapter.find({
-      chapterGrade: chapterGrade,
+      chapterGrade: chapterGrade, 
+      teacherName : req.userData.teacherName
     }).then((result) => {
       console.log(result);
       result.forEach((cahpter) => {
@@ -169,6 +173,7 @@ const addVideo_post = async (req, res) => {
     videosInfo['fristWatch'] = null;
     videosInfo['lastWatch'] = null;
     videosInfo['videoName'] = videoTitle;
+    
 
     if (paymentStatus == 'Pay') {
       videosInfo['videoPurchaseStatus'] = false;
@@ -217,7 +222,9 @@ const addVideo_post = async (req, res) => {
       { $push: { [`${VideoType}`]: VideoObject } }
     ).then((resultChapter) => {
       User.updateMany(
-        { Grade: resultChapter.chapterGrade },
+        { Grade: resultChapter.chapterGrade,
+        teacherName : req.userData.teacherName 
+        },
         {
           $push: {
             videosInfo: videosInfo,
@@ -264,6 +271,7 @@ const getAllChaptersInHandle = async (req, res) => {
     const { chapterGrade } = req.body;
     await Chapter.find({
       chapterGrade: chapterGrade,
+      teacherName: req.userData.teacherName,
     }).then((result) => {
       result.forEach((cahpter) => {
         data.push({
@@ -673,12 +681,12 @@ const convertToExcel = async (req, res) => {
 let query;
 const studentsRequests_get = async (req, res) => {
   try {
-    const { teacherName, Grade, studentPlace } = req.query;
+    const {  Grade, studentPlace } = req.query;
     let grade = Grade || 'Grade1';
     let StudentPlace = studentPlace || 'All';
-    let teachername = teacherName || req.userData.teacherName;
+    
     // Define the base query object
-    query = { Grade: grade, teacherName: teachername };
+    query = { Grade: grade, teacherName: req.userData.teacherName };
     console.log(query);
     // If studentPlace is not "All", include it in the query
 
@@ -716,7 +724,7 @@ const studentsRequests_get = async (req, res) => {
           studentsRequests: result,
           studentPlace: StudentPlace,
           Grade: grade,
-          teacherName: teachername,
+     
           isSearching: false,
           nextPage: hasNextPage ? nextPage : null,
           previousPage: hasPreviousPage ? page - 1 : null, // Calculate previous page
@@ -988,15 +996,13 @@ const searchToGetOneUserAllData = async (req, res) => {
 
   try {
     const result = await User.findOne({ [`${searchBy}`]: searchInput });
-
-    const attendance = await Card.findOne({ userId: result._id });
-
+    console.log(result);
+ 
     res.render('teacher/myStudent', {
       title: 'Mystudent',
       path: req.path,
       userData: req.userData,
-      userData: result,
-      attendance: attendance.cardHistory,
+      studentData: result,
     });
   } catch (error) {}
 };
@@ -1183,6 +1189,7 @@ const addQuiz_get = async (req, res) => {
   grade = Grade;
   await Chapter.find({
     chapterGrade: Grade,
+    teacherName: req.userData.teacherName,  
   }).then(async (result) => {
     result.forEach((cahpter) => {
       videoData.push({
@@ -1192,6 +1199,7 @@ const addQuiz_get = async (req, res) => {
 
     await Quiz.find({
       Grade: Grade,
+      teacherName: req.userData.teacherName,
     }).then((result) => {
       result.forEach((quiz) => {
         quizData.push({
@@ -1426,6 +1434,7 @@ const quizSubmit = (req, res) => {
     timeOfQuiz: timeOfQuiz,
     videoWillbeOpen: videoWillbeOpen || null,
     Grade: Grade,
+    teacherName: req.userData.teacherName,
     isQuizActive: true,
     permissionToShow: true,
     Questions: quizQuestions,
@@ -1436,7 +1445,9 @@ const quizSubmit = (req, res) => {
     .save()
     .then((result) => {
       User.updateMany(
-        { Grade: Grade },
+        { Grade: Grade  ,
+          teacherName: req.userData.teacherName,
+        },
         {
           $push: {
             quizesInfo: {
@@ -1526,7 +1537,10 @@ const getQuizzesNames = async (req, res) => {
   try {
     const { Grade } = req.query;
     quizGrade = Grade;
-    await Quiz.find({ Grade: Grade }, { quizName: 1 }).then((result) => {
+    await Quiz.find(
+      { Grade: Grade, teacherName: req.userData.teacherName },
+      { quizName: 1 }
+    ).then((result) => {
       console.log(result);
       res.render('teacher/handleQuizzes', {
         title: 'handleQuizzes',

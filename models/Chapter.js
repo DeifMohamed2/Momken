@@ -10,6 +10,10 @@ const Chapterschema = new Schema({
         type: String, 
         required: true, 
     },
+    teacherName: {
+        type: String, 
+        required: true, 
+    },
     chapterGrade :{
         type: String, 
         required: true,  

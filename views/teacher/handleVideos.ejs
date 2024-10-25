@@ -37,10 +37,14 @@
                                                 <div class="col-md-12 ">
                                                     <select name="chapterGrade" id="chapterGrade"
                                                         class="Grade w-100 text-center" required>
-                                                        <option>اختر الصف الدراسي </option>
-                                                        <option value="Grade1">الصف الاول الثانوي</option>
-                                                        <option value="Grade2">الصف الثاني الثانوي </option>
-                                                        <option value="Grade3">الصف الثالث الثانوي</option>
+                                                        <option value="">اختر الصف الدراسي </option>
+                                                
+                                                    <option value="Grade1" >الصف الاول الاعدادي</option>
+                                                    <option value="Grade2" >الصف الثاني الاعدادي</option>
+                                                    <option value="Grade3" >الصف الثالث الاعدادي</option>
+                                                    <option value="Grade4" >الصف الاول الثانوي</option>
+                                                    <option value="Grade5" >الصف الثاني الثانوي</option>
+                                                    <option value="Grade6" >الصف الثالث الثانوي</option>
                                                     </select>
                                                 </div>
 
@@ -198,7 +202,7 @@
                                                     <% } %>
                                                 </div>
                                                 <div class="course__image">
-                                                    <img src="../images/dna.svg">
+                                                    <img src="<%= lec.imgURL %>">
                                                 </div>
                                                 <div class="course__info">
                                                     <h3><%= lec.videoTitle %></h3>
@@ -230,7 +234,7 @@
                                                     <% } %>
                                                 </div>
                                                 <div class="course__image">
-                                                    <img src="../images/dna.svg">
+                                                          <img src="<%= lec.imgURL %>">
                                                 </div>
                                                 <div class="course__info">
                                                     <h3><%= lec.videoTitle %></h3>
@@ -259,7 +263,7 @@
                                                     <% } %>
                                                 </div>
                                                 <div class="course__image">
-                                                    <img src="../images/dna.svg">
+                                                        <img src="<%= lec.imgURL %>">
                                                 </div>
                                                 <div class="course__info">
                                                     <h3><%= lec.videoTitle %></h3>

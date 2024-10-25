@@ -7,6 +7,10 @@ const quizSchema = new Schema({
         type: String, 
         required: true, 
     },
+    teacherName: {
+        type: String, 
+        required: true, 
+    },  
     timeOfQuiz: {
         type: Number,
         required: true, 

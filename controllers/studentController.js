@@ -42,6 +42,7 @@ const chapters_get = async (req, res) => {
   try {
     const chapters = await Chapter.find({
       chapterGrade: req.userData.Grade,
+      teacherName : req.userData.teacherName,
       ARorEN: req.userData.ARorEN,
     }).sort({ createdAt: 1 });
     const paidChapters = chapters.map((chapter) => {
@@ -589,7 +590,7 @@ const ranking_get = async (req, res) => {
 
       // Find all students and sort them by totalScore
       const allStudents = await User.find(
-        {},
+        {Grade: req.userData.Grade , teacherName : req.userData.teacherName},
         { Username: 1, Code: 1, totalScore: 1 }
       ).sort({ totalScore: -1 });
 
@@ -602,7 +603,7 @@ const ranking_get = async (req, res) => {
         { Username: 1, Code: 1, totalScore: 1 }
       ).sort({ totalScore: -1 });
 
-      const count = await User.countDocuments({});
+      const count = await User.countDocuments({Grade: req.userData.Grade , teacherName : req.userData.teacherName});
 
       const nextPage = parseInt(page) + 1;
       const hasNextPage = nextPage <= Math.ceil(count / perPage);
@@ -622,12 +623,12 @@ const ranking_get = async (req, res) => {
       return;
     } else {
       await User.find(
-        { Grade: req.userData.Grade },
+        { Grade: req.userData.Grade , teacherName : req.userData.teacherName},
         { Username: 1, Code: 1, totalScore: 1 }
       )
         .sort({ totalScore: -1 })
         .then(async (result) => {
-          const count = await Code.countDocuments({});
+          const count = await User.countDocuments({Grade: req.userData.Grade , teacherName : req.userData.teacherName});
           const nextPage = parseInt(page) + 1;
           const hasNextPage = nextPage <= Math.ceil(count / perPage);
           const hasPreviousPage = page > 1;
@@ -662,14 +663,17 @@ const exams_get = async (req, res) => {
   try {
     // Get the top 3 ranked users by total score
     const rankedUsers = await User.find(
-      { Grade: req.userData.Grade },
+      { Grade: req.userData.Grade , teacherName : req.userData.teacherName},
       { Username: 1, userPhoto: 1 }
     )
       .sort({ totalScore: -1 })
       .limit(3);
 
     // Get all exams for the user's grade
-    const exams = await Quiz.find({ Grade: req.userData.Grade }).sort({
+    const exams = await Quiz.find({
+      Grade: req.userData.Grade,
+      teacherName: req.userData.teacherName,
+    }).sort({
       createdAt: 1,
     });
 
@@ -684,6 +688,7 @@ const exams_get = async (req, res) => {
         // Get all user scores for the current quiz
         const users = await User.find({
           Grade: req.userData.Grade,
+          teacherName : req.userData.teacherName,
           'quizesInfo._id': exam._id,
         }).select('quizesInfo.$');
 

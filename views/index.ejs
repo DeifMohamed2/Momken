@@ -4,6 +4,23 @@
 <%- include("./partials/head.ejs") %>
 
 
+<style>
+    .header__right-image {
+    display: flex; /* Ensure the images are side by side */
+    justify-content: space-between; /* Add space between images */
+    align-items: center; /* Vertically center the images */
+    gap: 10px; /* Adjust gap (in pixels) between the images as needed */
+}
+
+
+
+@media screen and (max-width: 768px) {
+    .header-img {
+        width: 100px; /* Adjust the image size for smaller screens */
+    }
+}
+
+</style>
 <body>
   
     <%- include("./partials/nav.ejs") %>
@@ -12,19 +29,22 @@
     <header>
         <div class="container header__container">
             <div class="header__left box-right  animate__animated animate__fadeInRight ">
-                <h1>طور من المستوي التعليمي مع التعليم المتطور من مُمكن</h1>
+                <h1>افضل اكاديمة للتعليم الاون لاين </h1>
                 <p>
-                   بادر الان بالدخول مع عائلة ممكن والتي تهدف الي نقل التعليم التكنولوجيي الي كل مكان افضل
+                ممكن مش مجرد سنتر تعليمي ممكن بيتك التاني ( لو مجتلناش احنا هنجيلك )
                 </p>
                 <a href="login" class="btn btn-primary box-right ">سجل الدخول</a><span class="aw">او</span>
                 <a  id="Features" class="btn btn-secondey box-right">اضغط هنا للتعرف علي جميع المزايا</a>
             </div>
             <div class="header__right box-left animate__animated animate__fadeInLeft">
              
+                <div class="header__right box-left animate__animated animate__fadeInLeft">
                 <div class="header__right-image">
-                    <!-- <img src="./images/white.png"> -->
-                    <img src="./images/logoMomke.png">
+                    <img src="./images/logoMomke.png" alt="Logo" class="header-img">
+                    <img src="./images/hh.png" alt="Additional image" class="header-img">
                 </div>
+            </div>
+
             </div>
         </div>
     </header>

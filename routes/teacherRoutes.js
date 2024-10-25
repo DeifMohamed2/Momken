@@ -75,11 +75,15 @@ router.get("/logOut", authMiddleware,teacherController.logOut);
 // ================== Add Video ====================== //
 
 
-router.post("/addChapter"  , teacherController.chapter_post);
+router.post('/addChapter', authMiddleware, teacherController.chapter_post);
 
-router.post("/getAllChapters"  , teacherController.getAllChapters);
+router.post(
+  '/getAllChapters',
+  authMiddleware,
+  teacherController.getAllChapters
+);
 
-router.post("/addVideo" , teacherController.addVideo_post);
+router.post('/addVideo', authMiddleware, teacherController.addVideo_post);
 
 // router.post("/uploadVideo", authMiddleware,teacherController.uploadVideo);
 
