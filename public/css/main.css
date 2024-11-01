@@ -1139,13 +1139,9 @@ section.featuers ul.timeline li:nth-child(even) .timebox h4 span {
     font-size: 1.8rem;
     margin-top: 2rem;
   }
-  .header__right-image {
 
-    display: inline !important;
-
-  }
   .header__right-image  img{
-    width: 20rem;
+    max-width: 10rem;
   
     border-radius: 50%;
   } 
