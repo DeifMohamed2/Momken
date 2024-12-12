@@ -60,59 +60,48 @@
               <div class="col-lg-4">
                 <div class="left">
                   <%- include("./partials/top.ejs") %>
-                  
-                  <div class="recent-updates" onclick='window.location.href="/student/ranking"'>
-                    <h2></h2>
-                    <div class="updates">
-                      <div class="third">
-                        <div class="profile-photo">
-                          
-                          <% if (rankedUsers[2] && rankedUsers[2].userPhoto) { %>
-                            <img src="<%= rankedUsers[2].userPhoto %>" id="second" alt="profile photo" />
-                        <% } else { %>
-                          <img src="" id="second" alt="profile photo" />
-
-                        <% } %>
+                    <div class="recent-updates" onclick='window.location.href="/student/ranking"'>
+                      <h2></h2>
+                      <div class="updates">
+                        <div class="third">
+                          <div class="profile-photo">
+                            <% if (rankedUsers[2] && rankedUsers[2].userPhoto) { %>
+                              <img src="<%= rankedUsers[2].userPhoto %>" id="second" alt="profile photo" />
+                            <% } else { %>
+                              <img src="" id="second" alt="profile photo" />
+                            <% } %>
+                          </div>
+                          <div class="text">
+                            <h3 style="color: #000000;">3<span style="color: #000000;">RD</span></h3>
+                          </div>
                         </div>
-                        <div class="text">
-                       
-                          <h3 style="color: #000000; ">3<span style="color: #000000; ">ST</span></h3>
+                        <div class="first">
+                          <i class="fa-solid fa-crown"></i>
+                          <div class="profile-photo">
+                            <% if (rankedUsers[0] && rankedUsers[0].userPhoto) { %>
+                              <img src="<%= rankedUsers[0].userPhoto %>" id="second" alt="profile photo" />
+                            <% } else { %>
+                              <img src="" id="second" alt="profile photo" />
+                            <% } %>
+                          </div>
+                          <div class="text">
+                            <h3>1<span>ST</span></h3>
+                          </div>
                         </div>
-                      </div>
-                      <div class="first">
-                        <i class="fa-solid fa-crown"></i>
-                        <div class="profile-photo">
-                          <% if (rankedUsers[0] && rankedUsers[0].userPhoto) { %>
-                            <img src="<%= rankedUsers[0].userPhoto %>" id="second" alt="profile photo" />
-                        <% } else { %>
-
-                          <img src="" id="second" alt="profile photo" />
-
-                        <% } %>
-                     
-                        </div>
-                        <div class="text">
-                          <h3>1<span>ST</span></h3>
-                        </div>
-                      </div>
-                      <div class="second">
-                        <div class="profile-photo">
-                          <% if (rankedUsers[1] && rankedUsers[1].userPhoto) { %>
-                            <img src="<%= rankedUsers[1].userPhoto %>" id="second" alt="profile photo" />
-                        <% } else { %>
-                          <img src="" id="second" alt="profile photo" />
-
-                        <% } %>
-              
-                        </div>
-                        <div class="text">
-                     
-                          <h3 style="color: #000000; ">2<span style="color: #000000; ">ST</span></h3>
+                        <div class="second">
+                          <div class="profile-photo">
+                            <% if (rankedUsers[1] && rankedUsers[1].userPhoto) { %>
+                              <img src="<%= rankedUsers[1].userPhoto %>" id="second" alt="profile photo" />
+                            <% } else { %>
+                              <img src="" id="second" alt="profile photo" />
+                            <% } %>
+                          </div>
+                          <div class="text">
+                            <h3 style="color: #000000;">2<span style="color: #000000;">ND</span></h3>
+                          </div>
                         </div>
                       </div>
-                    
                     </div>
-                  </div>
 
 
                   <div class="sales-analytics">
