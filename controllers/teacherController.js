@@ -30,6 +30,18 @@ const dash_get = (req, res) => {
   //       console.error("Error deleting users:", error);
   //   });
 
+  // User.updateMany(
+  //   { Grade: 'Grade4' },
+  //   {
+  //     $set: {
+  //       _id: mongoose.Types.ObjectId('b9271292-e816-439d-9660-5cd540c8312c'),
+
+  //     },
+  //   },
+  //   {
+  //     upsert: true,
+  //   }
+  // );
   
   console.log(req.userData);
   res.render('teacher/dash', { title: 'DashBoard', path: req.path , userData : req.userData});
@@ -223,7 +235,7 @@ const addVideo_post = async (req, res) => {
     ).then((resultChapter) => {
       User.updateMany(
         { Grade: resultChapter.chapterGrade,
-        teacherName : req.userData.teacherName 
+        // teacherName : req.userData.teacherName 
         },
         {
           $push: {
@@ -1446,7 +1458,7 @@ const quizSubmit = (req, res) => {
     .then((result) => {
       User.updateMany(
         { Grade: Grade  ,
-          teacherName: req.userData.teacherName,
+          // teacherName: req.userData.teacherName,
         },
         {
           $push: {
