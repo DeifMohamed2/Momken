@@ -14,7 +14,7 @@ const Excel = require('exceljs');
 const { v4: uuidv4 } = require('uuid');
 const { result } = require('lodash');
 
-const dash_get = (req, res) => {
+const dash_get = async (req, res) => {
   //   const idsToKeep = [
   //     "65e4cfe6022bba8f9ed4a80f",
   //     "65e4d024022bba8f9ed4a811",
@@ -43,6 +43,18 @@ const dash_get = (req, res) => {
   //   }
   // );
   
+  // await User.updateMany(
+  //   {},
+  //   {
+  //     $set: {
+  //       quizesInfo: [],
+  //       videosInfo: [],
+  //       chaptersPaid: [],
+  //       videosPaid: []
+  //     }
+  //   }
+  // );
+
   console.log(req.userData);
   res.render('teacher/dash', { title: 'DashBoard', path: req.path , userData : req.userData});
 };
