@@ -203,9 +203,9 @@
   margin-bottom: 1rem;
 }
 .listbtn:hover{
-  border-bottom: 2px solid rgb(0, 0, 0) !important;
+  border-bottom: 2px solid white !important;
   transform: scale(1.1);
-  color: rgb(0, 0, 0) !important;
+  color: rgb(245, 211, 15) !important;
 }
 
 .quiz-info{

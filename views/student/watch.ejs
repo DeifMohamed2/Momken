@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
   <%- include("./partials/head.ejs") %>
-    <link rel="stylesheet" href="/css/watch.css">
+
 <style>
   .video-container {
     position: relative;
@@ -17,27 +17,17 @@
     width: 100%;
     height: 100%;
 }
-#progress-container p {
-  font-size: 14px;
-  color: #333;
-  margin-top: 5px;
+.pdfURL {
+  margin-bottom: 2.4rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
-#progress-container {
-  display: none;
-  margin-top: 10px;
-}
-#progress-container .progress-bar {
-  background-color: #007bff;
-  height: 5px;
-  width: 0;
-  margin-top: 5px;
-  transition: width 0.3s;
-}
-#file-list {
-  margin-top: 10px;
-}
+.pdfURL:hover a{
 
-
+  color: black;
+  }
 </style>
   <body id="body">
     <%- include("./partials/preloader.ejs") %>
@@ -57,7 +47,7 @@
         </div>
         <div class="modal-body text-center " style="color: black;">
           <h1>تم رفع الملفات بنجاح ! </h1>  
-         
+          <h2>  سيتم مراجعتها اولا وفي حال قبولها سيتم فتح الفيديو القادم لك .  </h2>
         </div>
         <div class="modal-footer mx-auto">
           <button type="button" class="btn btn-primary"  data-bs-dismiss="modal" id="copyCode" > حسنا </button>
@@ -143,28 +133,22 @@
                 </div>
                 <hr />
                 <ul class="list-group list-group-horizontal mx-auto">
-                  <li>
-                    <form action="" method="post">
+                      <li>
+                  
 
                       
-                      <button type="button" class="listbtn btn btn-outline-warning" id="UploadHomeWorkBtn">
-                        رفع الواجب
+            <a href="<%=video.PDFURL  %>" target="_blank" >
+                      <button  class="listbtn btn btn-outline-warning pdfURL " id="UploadHomeWorkBtn">
+                
+                          PDF واجب <%= video.videoTitle %>
+                          <i class="fas fa-file-pdf"></i>
+                      
                       </button>
+                        </a>
 
-                  </form>
+             
 
                   </li>
-               
-                    <% if (userData.Grade=="Grade1") { %>
-                         <li class="me-3">
-                       <a href="https://drive.google.com/drive/folders/1aRQO-tQIYPBD7uzSoyw_QSMxqft1QiwU?usp=sharing"> <button class="listbtn btn btn-outline-warning" >
-                     Download PDFs
-
-                    </button>
-                    </a>
-                  </li>
-                    <% } %>
-                   
                 </ul>
               </div>
 
@@ -200,123 +184,13 @@
 
     <!-- <script src="https://player.vimeo.com/api/player.js"></script> -->
 
-    <script type="module">
-            // Import the functions you need from the SDKs you need
- import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.3/firebase-app.js";
- import {
-  getStorage,
-  ref as sRef,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "https://www.gstatic.com/firebasejs/9.9.3/firebase-storage.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAWMeg2H_9xfHQEynB5G8ZuBhoGQuyUCKM",
-  authDomain: "biodiva-eebd2.firebaseapp.com",
-  projectId: "biodiva-eebd2",
-  storageBucket: "biodiva-eebd2.appspot.com",
-  messagingSenderId: "859594822962",
-  appId: "1:859594822962:web:9c27c84c22ff197db9332b"
-};
-
-initializeApp(firebaseConfig);
-
-
-
-document.getElementById("UploadHomeWorkBtn").addEventListener('click',()=>{
-  document.getElementById("ShowUploadSec").style.display="inline"
-  document.getElementById("ShowUploadSec").scrollIntoView({ behavior: 'smooth' })
-})
-
-const fileInput = document.querySelector("#file-input");
-const fileSelectButton = document.querySelector("#file-select-button");
-const fileList = document.querySelector("#file-list");
-
-fileInput.addEventListener("change", function() {
-  const files = fileInput.files;
-  document.getElementById("UploadBtn").style.display="inline"
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    fileList.innerHTML +=`
-     <div class="file-name" >  ${file.name} </div>
-     <div class="progress">
-        <div class="progress-bar" id="progress-bar${i}" role="progressbar" style="width: 0% ;   background-color:#4BB543!important;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">0%</div>
-    </div>
-    `
-  }
-});
-
-fileSelectButton.addEventListener("click", function() {
-  fileInput.click();
-});
-let HomeWorkPhotos= new Array();
-async function uploFilesHomeWork() {
-  const files = fileInput.files;
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    let upprogresstext = document.getElementById(`progress-bar${i}`);
-
-    const metaData = {
-      contentType: file.type,
-    };
   
-    const storage = getStorage();
-    const stroageRef = sRef(
-      storage,
-      "BioDiva/" + "HomeWorks/" + file.name
-    );
-    const UploadTask = uploadBytesResumable(stroageRef, file, metaData);
-    UploadTask.on(
-      "state-changed",
-      (snapshot) => {
-        var progess = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        upprogresstext.innerHTML = progess.toFixed(2) + "%";
-        upprogresstext.style.width = progess.toFixed(2) + "%"
-      },
-      (error) => {Z
-        alert("error");
-        return;
-      },
-      () => {
-        getDownloadURL(UploadTask.snapshot.ref).then((downloadURL) => {
-          HomeWorkPhotos.push(downloadURL);
-          if (HomeWorkPhotos.length == files.length) {
-            document.getElementById("ShowUploadSec").style.display = "none";
-
-            fetch("", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                HomeWorkPhotos ,
-              }),
-            }).then(()=>{
-              document.getElementById("HomeWorkSubmitbtn").click()
-            }).catch((error)=>{
-              alert("error")
-            })
-
-          }
-        });
-       
-      }
-    );
-  }
-
-}
-module.uploFilesHomeWork = uploFilesHomeWork;
-document.getElementById("UploadBtn").addEventListener('click',uploFilesHomeWork)
-
-    </script>
-  
-
-
 
     <script>
       module = {};
     </script>
-   
+    <script type="module" src="./js/watch.js"></script>
 
 
 

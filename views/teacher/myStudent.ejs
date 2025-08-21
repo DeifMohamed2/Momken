@@ -99,9 +99,9 @@
 
                                         <tbody>
 
-                                            <% if (studentData ) { %>
+                                            <% if (userData ) { %>
                                                 <% let counter = 1; %>
-                                                    <% studentData['videosInfo'].forEach(data => { %>
+                                                    <% userData['videosInfo'].forEach(data => { %>
                                                    
                                                         <tr>
                                                             <td> <%= counter %></td>
@@ -175,9 +175,9 @@
 
                                         <tbody>
 
-                                            <% if (studentData ) { %>
+                                            <% if (userData ) { %>
                                                 <% let counter = 1; %>
-                                                    <% studentData['quizesInfo'].forEach(data => { %>
+                                                    <% userData['quizesInfo'].forEach(data => { %>
                                                    
                                                         <tr>
                                                             <td> <%= counter %></td>
@@ -212,14 +212,72 @@
 
                                 </div>
                             </div>
-                   
+                            <div class="col-md-12  col-sm-12">
+                                <h1>Attendance Data</h1>
+                                <div class="student-table ">
+
+                                
+
+                                    <table id="myTable">
+                                        <thead>
+                                            <th style="padding: 10px;"># </th>
+                        
+                                            <th style="padding-left: 20px;">  اسم السنتر </th>
+                                            <th style="padding-left: 20px;"> اسم  الجروب </th>
+                                            <th style="padding-left: 20px;">  نوع الحضور  </th>
+                                            
+                                            <th style="padding-left: 20px;"> تاريخ الحضور   </th>        
+                                        </thead>
+
+                                        <tbody>
+
+                                            <% if (attendance ) { %>
+                                                <% let counter = 1; %>
+                                                    <% attendance.forEach(data => { %>
+                                                   
+                                                        <tr>
+                                                            <td> <%= counter %></td>
+                                                            <td  style="line-height: 20px;"><span ><i class="fa-solid "></i></span><%= data.centerName %></td>
+                                                            <td  ><%= data.GroupTime%></td>
+                                                            <td >Online</td>
+                                                            <td>
+                                                            <%= data.dateOfAttend 
+                                                                ? new Date(data.dateOfAttend).toLocaleDateString() + " " + 
+                                                                    new Date(data.dateOfAttend).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) 
+                                                                : "لم يحضر" 
+                                                            %>
+                                                            </td>
+                                                                                                                
+                                                        
+                                                        </tr>
+        
+                                                    <% counter++; %>
+        
+                                                    <% }) %>
+                                                        
+                                                <% } else { %>
+                                                    <tr style="text-align: center;">
+                                                        <td colspan="8">
+                                                            <h1></h1>
+                                                        </td>
+                                                    </tr>
+                                                <% } %>
+
+                                        </tbody>
+
+                                    </table>
+                                 
+
+                                </div>
+                            </div>
+
                             <div class="pagination justify-content-between mb-5">
-                             <% if (studentData ) { %>
+                             <% if (userData ) { %>
                                 <div class="mx-auto">
-                                    <form action="/teacher/myStudent/convertToExcelAllUserData/<%= studentData.Code %>" method="post">
+                                    <form action="/teacher/myStudent/convertToExcelAllUserData/<%= userData.Code %>" method="post">
                                         <button class="paginationBtns">Convert To Excel</button> 
                                     </form>
-                                    <!-- <form action="/teacher/myStudent/convertToPDFAllUserData/<%= studentData.Code %>" method="post">
+                                    <!-- <form action="/teacher/myStudent/convertToPDFAllUserData/<%= userData.Code %>" method="post">
                                         <button class="paginationBtns">Convert To PDF</button> 
                                     </form> -->
                           

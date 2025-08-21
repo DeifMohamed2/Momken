@@ -82,23 +82,15 @@
                             <select name="Grade" id="Grade" class="slections" required>
                                 <option value="">اختر الصف الدراسي</option>
                         <% if (Grade) { %>
-
-                                <option value="Grade1" <%= Grade === 'G' ? 'selected' : '' %>>الصف الاول الاعدادي</option>
-                                <option value="Grade2" <%= Grade === 'Grade2' ? 'selected' : '' %>>الصف الثاني الاعدادي</option>
-                                <option value="Grade3" <%= Grade === 'Grade3' ? 'selected' : '' %>>الصف الثالث الاعدادي</option>
-                                           
-                                <option value="Grade4" <%= Grade === 'Grade4' ? 'selected' : '' %>>الصف الاول الثانوي</option>
-                                <option value="Grade5" <%= Grade === 'Grade5' ? 'selected' : '' %>>الصف الثاني الثانوي</option>
-                                <option value="Grade6" <%= Grade === 'Grade6' ? 'selected' : '' %>>الصف الثالث الثانوي</option>
+                                <option value="Grade1" <%= Grade === 'Grade1' ? 'selected' : '' %>>الصف الاول الثانوي</option>
+                                <option value="Grade2" <%= Grade === 'Grade2' ? 'selected' : '' %>>الصف الثاني الثانوي</option>
+                                <option value="Grade3" <%= Grade === 'Grade3' ? 'selected' : '' %>>الصف الثالث الثانوي</option>
                       
                         <% } else{ %>
-                    
-                                <option value="Grade1" >الصف الاول الاعدادي</option>
-                                <option value="Grade2" >الصف الثاني الاعدادي</option>
-                                <option value="Grade3" >الصف الثالث الاعدادي</option>
-                                <option value="Grade4" >الصف الاول الثانوي</option>
-                                <option value="Grade5" >الصف الثاني الثانوي</option>
-                                <option value="Grade6" >الصف الثالث الثانوي</option>
+                            <option value="Grade1">الصف الاول الثانوي</option>
+                            <option value="Grade2"  >الصف الثاني الثانوي</option>
+                            <option value="Grade3">الصف الثالث الثانوي</option>
+                  
                             <% } %>
 
                     </select>
@@ -110,12 +102,9 @@
 
                             <select name="Grade" id="Grade" class="slections" required>
                                 <option class="shape"  value="">اختر الصف الدراسي</option>
-                                <option value="Grade1" >الصف الاول الاعدادي</option>
-                                <option value="Grade2" >الصف الثاني الاعدادي</option>
-                                <option value="Grade3" >الصف الثالث الاعدادي</option>
-                                <option value="Grade4" >الصف الاول الثانوي</option>
-                                <option value="Grade5" >الصف الثاني الثانوي</option>
-                                <option value="Grade6" >الصف الثالث الثانوي</option>
+                                <option value="Grade1">الصف الاول الثانوي</option>
+                                <option value="Grade2">الصف الثاني الثانوي </option>
+                                <option value="Grade3">الصف الثالث الثانوي</option>
                             </select>
                         <select id="videosName" name="videoWillbeOpen"  class="slections" >
                             <option value="">اختر اسم الفيديو الذي سيفتح </option>

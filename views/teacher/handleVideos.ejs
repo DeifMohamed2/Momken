@@ -37,14 +37,10 @@
                                                 <div class="col-md-12 ">
                                                     <select name="chapterGrade" id="chapterGrade"
                                                         class="Grade w-100 text-center" required>
-                                                        <option value="">اختر الصف الدراسي </option>
-                                                
-                                                    <option value="Grade1" >الصف الاول الاعدادي</option>
-                                                    <option value="Grade2" >الصف الثاني الاعدادي</option>
-                                                    <option value="Grade3" >الصف الثالث الاعدادي</option>
-                                                    <option value="Grade4" >الصف الاول الثانوي</option>
-                                                    <option value="Grade5" >الصف الثاني الثانوي</option>
-                                                    <option value="Grade6" >الصف الثالث الثانوي</option>
+                                                        <option>اختر الصف الدراسي </option>
+                                                        <option value="Grade1">الصف الاول الثانوي</option>
+                                                        <option value="Grade2">الصف الثاني الثانوي </option>
+                                                        <option value="Grade3">الصف الثالث الثانوي</option>
                                                     </select>
                                                 </div>
 
@@ -99,6 +95,7 @@
                                                         required><%= chapterData.chapterName||"" %></textarea>
                                                 </div>
                                             </div>
+                                            
 
                                             <div class="col-md-3 ">
                                                 <select class="Grade" id="chapterAccessibility"
@@ -202,7 +199,11 @@
                                                     <% } %>
                                                 </div>
                                                 <div class="course__image">
-                                                    <img src="<%= lec.imgURL %>">
+                                                    <% if (lec.imgURL && lec.imgURL.trim() !== '') { %>
+                                                        <img src="<%= lec.imgURL %>" alt="<%= lec.videoTitle %>" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    <% } else { %>
+                                                        <img src="../images/dna.svg">
+                                                    <% } %>
                                                 </div>
                                                 <div class="course__info">
                                                     <h3><%= lec.videoTitle %></h3>
@@ -234,7 +235,11 @@
                                                     <% } %>
                                                 </div>
                                                 <div class="course__image">
-                                                          <img src="<%= lec.imgURL %>">
+                                                    <% if (lec.imgURL && lec.imgURL.trim() !== '') { %>
+                                                        <img src="<%= lec.imgURL %>" alt="<%= lec.videoTitle %>" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    <% } else { %>
+                                                        <img src="../images/dna.svg">
+                                                    <% } %>
                                                 </div>
                                                 <div class="course__info">
                                                     <h3><%= lec.videoTitle %></h3>
@@ -263,7 +268,11 @@
                                                     <% } %>
                                                 </div>
                                                 <div class="course__image">
-                                                        <img src="<%= lec.imgURL %>">
+                                                    <% if (lec.imgURL && lec.imgURL.trim() !== '') { %>
+                                                        <img src="<%= lec.imgURL %>" alt="<%= lec.videoTitle %>" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    <% } else { %>
+                                                        <img src="../images/dna.svg">
+                                                    <% } %>
                                                 </div>
                                                 <div class="course__info">
                                                     <h3><%= lec.videoTitle %></h3>

@@ -103,14 +103,22 @@
                         <div class="col-md-6">
                             <form action="/teacher/studentsRequests" method="get">
                              
-                                <select name="Grade" class="Grade">
-                                    <option value="Grade1" <% if (Grade === "Grade1") { %> selected <% } %>>الصف الاول الاعدادي</option>
-                                    <option value="Grade2" <% if (Grade === "Grade2") { %> selected <% } %>>الصف الثاني الاعدادي</option>
-                                    <option value="Grade3" <% if (Grade === "Grade3") { %> selected <% } %>>الصف الثالث الاعدادي</option>
-                                    <option value="Grade4" <% if (Grade === "Grade4") { %> selected <% } %>>الصف الاول الثانوي</option>
-                                    <option value="Grade5" <% if (Grade === "Grade5") { %> selected <% } %>>الصف الثاني الثانوي</option>
-                                    <option value="Grade6" <% if (Grade === "Grade6") { %> selected <% } %>>الصف الثالث الثانوي</option>
-                                </select>
+                                    <select name="Grade" class="Grade">
+                                        <% if (Grade=="Grade1") { %>
+                                            <option selected value="Grade1">الصف الاول الثانوي</option>
+                                            <option value="Grade2">الصف الثاني الثانوي </option>
+                                            <option value="Grade3">الصف الثالث الثانوي</option>
+                                        <% } else if(Grade=="Grade2"){ %>
+                                            <option  value="Grade1">الصف الاول الثانوي</option>
+                                            <option  selected value="Grade2">الصف الثاني الثانوي </option>
+                                            <option  value="Grade3">الصف الثالث الثانوي</option>
+                                        <% } else {%>
+                                            <option  value="Grade1">الصف الاول الثانوي</option>
+                                            <option  value="Grade2">الصف الثاني الثانوي </option>
+                                            <option  selected value="Grade3">الصف الثالث الثانوي</option>
+                                        <% } %>        
+                                 
+                                    </select>
                                     <select name="studentPlace" class="Grade">
                                   
                                     <% if (studentPlace=="All") { %>

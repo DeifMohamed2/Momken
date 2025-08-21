@@ -41,12 +41,9 @@
                             <select name="Grade" id="Grade" class="slections" required>
                                 <option>اختر الصف الدراسي</option>
                      
-                                <option value="Grade1" >الصف الاول الاعدادي</option>
-                                <option value="Grade2" >الصف الثاني الاعدادي</option>
-                                <option value="Grade3" >الصف الثالث الاعدادي</option>
-                                <option value="Grade4" >الصف الاول الثانوي</option>
-                                <option value="Grade5" >الصف الثاني الثانوي</option>
-                                <option value="Grade6" >الصف الثالث الثانوي</option>
+                                <option value="Grade1">الصف الاول الثانوي</option>
+                                <option value="Grade2"  >الصف الثاني الثانوي</option>
+                                <option value="Grade3">الصف الثالث الثانوي</option>   
                     
                              </select>
 
@@ -126,21 +123,13 @@
                                                 <td><%= counter %></td>
                                                 <td><%=student.Username %></td>
                                                 <td><%=student.Code %></td>
-                                                <td><%=student['quizesInfo'][0].solvedAt ||"لم يحل الامتحان بعد"%></td>
-
-                                                <% if (student['quizesInfo'][0].solvedAt) { %>
-                                                    
+                                                <td><%=student['quizesInfo'][0].solvedAt ||"1/10"%></td>
                                                 <td><%=student['quizesInfo'][0].questionsCount %> / <%=  student['quizesInfo'][0].Score %> </td>
                                                 <form action="/teacher/changeEnterToQuiz/<%= student['quizesInfo'][0]['_id'] %>?UserId=<%= student._id %>" method="post">
                                                     <div class="text-center">
                                                         <td><button class="btn btn-outline-light" style="border-radius: 10px !important;">فتح من جديد</button></td>
                                                     </div>
                                                 </form>
-                                                <% } else { %>
-                                                      <td>لا يوجد</td>
-                                            
-                                                <% } %>
-
                                             </tr>
                                             <% counter++; %>
                                        <% }) %>

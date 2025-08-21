@@ -117,22 +117,22 @@
                                        <option value="Grade3">الصف الثالث الثانوي</option>
 
                                    </select>
-                                    <select name="centerName" class="Grade" id="centerName" required>
+                                   <select name="centerName" class="Grade" id="centerName" required>
                                        <option value="" selected>اختر اسم السنتر </option>
-                                       <option value="centerBasmala">  البسمله</option>
-                                       <option value="centerDHL">DHL </option>
-                                       <option value="centerDarElsa3da">   دار السعاده</option>
-                                       <option value="centerFutureSoft">  Future Soft</option>
-                                       <option value="centerInfinity"> Infinity</option>
-                                       <option value="centerElra3y"> الراعي</option>
-                                       <option value="centerNewFuture"> New Future</option>
-                                       <option value="centerHarverd"> هارفرد </option>
-                                       <option value="centerA1"> A1 </option>
+                                       <option value="centerAlpha">  سنتر الفا</option>
+                                       <option value="centerX">سنتر X   </option>
+                                       <option value="centerNour">  سنتر النور</option>
 
                                    </select>
-                                 <select name="groupTime" class="Grade" id="GroupTime" required>
-                                <option value="" selected>مجموعه</option>
-                               </select>
+                                   <select name="groupTime" class="Grade" id="GroupTime" required>
+                                       <option value="" selected>مجموعه   </option>
+                                     
+                                           <option value="group1">المجموعه الاولي</option>
+                                           <option value="group2">المجموعه الثانيه</option>
+                                           <option value="group3">المجموعه الثالثه</option>
+
+                                   </select>
+
 
 
                                    <select name="Dates" class="Grade" id="Dates">
@@ -196,66 +196,7 @@
     <script src="/assest/bootstrap.bundle.min.js"></script>
     <script src="/assest/bootstrap.min.js"></script>
 
-<script>
-// Group times for each center
-const groupTimes = {
-    centerBasmala: [
-        { value: 'group1', text: 'السبت - 10  - 12 ' },
-        { value: 'group2', text: 'السبت - 12  - 2 ' }
-    ],
-    centerDHL: [
-        { value: 'group1', text: 'السبت - 3  - 5 ' },
-        { value: 'group2', text: 'السبت - 5  - 7 ' }
-    ],
-    centerDarElsa3da: [
-        { value: 'group1', text: 'الاحد - 3:30  - 5:30 ' },
-        { value: 'group2', text: 'الاثنين - 5  - 7 ' }
-    ],
-    centerFutureSoft: [
-        { value: 'group1', text: 'الاحد - 6  - 8 ' },
-        { value: 'group2', text: 'الخميس - 7  - 9 ' }
-    ],
-    centerInfinity: [
-        { value: 'group1', text: 'الاثنين - 7  - 9 ' }
-    ],
-    centerElra3y: [
-        { value: 'group1', text: 'الثلاثاء - 3  - 5 ' },
-        { value: 'group2', text: 'الاربعاء - 5:30  - 7:30 ' },
-        { value: 'group3', text: 'الاربعاء - 7:30  - 9:30 ' }
-    ],
-    centerNewFuture: [
-        { value: 'group1', text: 'الثلاثاء - 5  - 7 ' },
-        { value: 'group2', text: 'الثلاثاء - 7  - 9 ' }
-    ],
-    centerHarverd: [
-        { value: 'group1', text: 'الخميس - 3  - 5 ' },
-        { value: 'group2', text: 'الخميس - 5  - 7 ' }
-    ],
-    centerA1: [
-        { value: 'group1', text: 'الجمعه - 3  - 5 ' },
-        { value: 'group2', text: '7 - 5  - 5 ' }
-    ]
-};
 
-// Handle center name change
-document.getElementById('centerName').addEventListener('change', function() {
-    const selectedCenter = this.value;
-    const groupTime = document.getElementById('GroupTime');
-
-    // Clear existing options
-    groupTime.innerHTML = '<option value="" selected>مجموعه</option>';
-
-    // Add new options based on the selected center
-    if (groupTimes[selectedCenter]) {
-        groupTimes[selectedCenter].forEach(group => {
-            const option = document.createElement('option');
-            option.value = group.value;
-            option.textContent = group.text;
-            groupTime.appendChild(option);
-        });
-    }
-});
-</script>
 
     <script>
         const getAttendeesDataBtn = document.getElementById('getAttendeesDataBtn');

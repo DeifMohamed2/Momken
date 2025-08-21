@@ -1,31 +1,53 @@
 const User = require('../models/User');
+const Chapter = require('../models/Chapter');
 
+const waapi = require('@api/waapi');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
 const jwtSecret = process.env.JWTSECRET;
+const waapiAPI = process.env.WAAPIAPI;
+waapi.auth(`${waapiAPI}`);
 
+const home_page = async (req, res) => {
 
-
-const home_page = (req, res) => {
   res.render('index', { title: 'Home Page' });
 };
 
+const getChaptersByGrade = async (req, res) => {
+  const { grade } = req.query; // Extract grade from query params
+  console.log('grade', grade);
+  try {
+    const chapters = await Chapter.find({
+      chapterGrade: grade,
+    }).sort({ createdAt: -1 });
+    console.log('chapters', chapters);
+    res.json(chapters); // Send the filtered chapters as JSON
+  } catch (error) {
+    console.error('Error fetching chapters by grade:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// const changeChapters = async (req, res) => {
+// }
+
 const public_login_get = (req, res) => {
+  const StudentCode = req.query.StudentCode;
   res.render('login', {
     title: 'Login Page',
     Email: '',
     Password: '',
     error: '',
+    StudentCode: StudentCode || '',
   });
 };
 
 const public_login_post = async (req, res) => {
   try {
-    const { emailOrPhone, password } = req.body;
+    const { phone, password } = req.body;
 
-    const user = await User.findOne({
-      $or: [{ phone: emailOrPhone }],
-    });
+    const user = await User.findOne({ phone: phone});
 
     if (!user) {
       return res
@@ -34,21 +56,19 @@ const public_login_post = async (req, res) => {
           title: 'Login Page',
           Email: '',
           Password: null,
-          error: 'البريد الالكتروني او كلمه المرور خاطئه',
+          error: ' رقم الهاتف او كلمه المرور خاطئ او الاكونت غير مفعل',
         });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.Password);
 
     if (!isPasswordValid) {
-      return res
-        .status(401)
-        .render('login', {
-          title: 'Login Page',
-          Email: '',
-          Password: null,
-          error: 'البريد الالكتروني او كلمه المرور خاطئه',
-        });
+      return res.status(401).render('login', {
+        title: 'Login Page',
+        Email: '',
+        Password: null,
+        error: ' رقم الهاتف او كلمه المرور خاطئ او الاكونت غير مفعل',
+      });
     }
 
     const token = jwt.sign({ userId: user._id }, jwtSecret);
@@ -57,11 +77,11 @@ const public_login_post = async (req, res) => {
     if (user.isTeacher) {
       return res.redirect('/teacher/dash');
     } else {
-      if (user.subscribe) {
-        return res.redirect('/student/dash');
-      } else {
-        return res.redirect('/login?StudentCode=' + user.Code);
-      }
+      return res.redirect('/student/dash');
+      // if (user.subscribe) {
+      // } else {
+      //   return res.redirect('/login?StudentCode=' + user.Code);
+      // }
     }
   } catch (error) {
     console.log(error);
@@ -82,46 +102,48 @@ const public_Register_get = (req, res) => {
 
 const public_Register_post = async (req, res) => {
   const {
-    Password,
+    password,
+    password2,
     Username,
     gov,
     Markez,
     schoolName,
     Grade,
-    teacherName,
     gender,
     phone,
     parentPhone,
-    place,
-    // verificationCode,
+  
+
   } = req.body;
 
   // Create an object to store validation errors
   const errors = {};
 
-  // // Validate verification code
-  // if (req.session.verificationCode !== parseInt(verificationCode)) {
-  //   errors.verificationCode = '- كود التفعيل غير صحيح';
-  // }
-
-  // Check if the password is at least 7 characters long
-  if (Password.length < 7) {
+  if (password.length < 7) {
     req.body.Password = '';
     errors.password = '- كلمة المرور يجب ان لا تقل عن 7';
   }
+
+  if (password !== password2) {
+    req.body.Password = '';
+    req.body.Password2 = '';
+    errors.password = '- كلمة المرور غير متطابقة';
+  }
+
+
   let Code = Math.floor(Math.random() * 400000 + 600000);
 
   // Check if the phone number has 11 digits
-  if (phone.length !== 11) {
-    req.body.phone = '';
-    errors.phone = '- رقم الهاتف يجب ان يحتوي علي 11 رقم';
-  }
+  // if (phone.length !== 222) {
+  //   req.body.phone = '';
+  //   errors.phone = '- رقم الهاتف يجب ان يحتوي علي 11 رقم';
+  // }
 
   // Check if the parent's phone number has 11 digits
-  if (parentPhone.length !== 11) {
-    req.body.parentPhone = '';
-    errors.parentPhone = '- رقم هاتف ولي الامر يجب ان يحتوي علي 11 رقم';
-  }
+  // if (parentPhone.length !== 11) {
+  //   req.body.parentPhone = '';
+  //   errors.parentPhone = '- رقم هاتف ولي الامر يجب ان يحتوي علي 11 رقم';
+  // }
 
   // Check if phone is equal to parentPhone
   if (phone === parentPhone) {
@@ -132,19 +154,24 @@ const public_Register_post = async (req, res) => {
     // Set an error message for this condition
     errors.phone = '- رقم هاتف الطالب لا يجب ان يساوي رقم هاتف ولي الامر';
   }
-  if (!gender) {
-    errors.gender = '- يجب اختيار نوع الجنس';
-  }
   if (!gov) {
     errors.gov = '- يجب اختيار محافظة';
   }
   if (!Grade) {
     errors.Grade = '- يجب اختيار الصف الدراسي';
   }
-  // if (!ARorEN) {
-  //   errors.Grade = "- يجب اختيار انت عربي ولا لغات";
-  // }
-  // If there are validation errors, render the registration form again with error messages
+
+  if (!Markez) {
+    errors.Markez = '- يجب اختيار المركز';
+  }
+  if (!schoolName) {
+    errors.schoolName = '- يجب ادخال اسم المدرسة';
+
+  }
+  console.log('req.body', req.body);
+
+  console.log('errors', errors);
+
   if (Object.keys(errors).length > 0) {
     return res.render('Register', {
       title: 'Register Page',
@@ -154,59 +181,45 @@ const public_Register_post = async (req, res) => {
     });
   }
 
+
+
   // auth Of jwt
 
   let quizesInfo = [];
   let videosInfo = [];
 
   if (Grade === 'Grade1') {
-    await User.findOne({ Grade: Grade, Code: 798979 }).then((result) => {
+    await User.findOne({ Code: 980420 }).then((result) => {
       quizesInfo = result.quizesInfo;
       videosInfo = result.videosInfo;
     });
   } else if (Grade === 'Grade2') {
-    await User.findOne({ Grade: Grade, Code: 725038 }).then((result) => {
+    await User.findOne({ Code: 945207 }).then((result) => {
       quizesInfo = result.quizesInfo;
       videosInfo = result.videosInfo;
     });
   } else if (Grade === 'Grade3') {
-    await User.findOne({ Grade: Grade, Code: 719362 }).then((result) => {
-      quizesInfo = result.quizesInfo;
-      videosInfo = result.videosInfo;
-    });
-  }else if (Grade === 'Grade4') {
-    await User.findOne({ Grade: Grade, Code: 941730 }).then((result) => {
-      quizesInfo = result.quizesInfo;
-      videosInfo = result.videosInfo;
-    });
-  }else if (Grade === 'Grade5') {
-    await User.findOne({ Grade: Grade, Code: 823263 }).then((result) => {
-      quizesInfo = result.quizesInfo;
-      videosInfo = result.videosInfo;
-    });
-  }else if (Grade === 'Grade6') {
-    await User.findOne({ Grade: Grade, Code: 936707 }).then((result) => {
+    await User.findOne({ Code: 907740 }).then((result) => {
       quizesInfo = result.quizesInfo;
       videosInfo = result.videosInfo;
     });
   }
 
-  const hashedPassword = await bcrypt.hash(Password, 10);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
     const user = new User({
       Username: Username,
       Password: hashedPassword,
-      PasswordWithOutHash: Password,
+      PasswordWithOutHash: password,
       gov: gov,
       Markez: Markez,
       schoolName: schoolName,
       Grade: Grade,
-      teacherName: teacherName,
-      gender: gender,
+      gender: 'male',
       phone: phone,
       parentPhone: parentPhone,
-      place: place,
+      place: 'online',
       Code: Code,
       subscribe: false,
       quizesInfo: quizesInfo,
@@ -266,7 +279,29 @@ const send_verification_code = async (req, res) => {
     const code = Math.floor(Math.random() * 400000 + 600000);
     const message = `كود التحقق الخاص بك هو ${code}`;
 
-   
+    // Send the message via the waapi (already present)
+    await waapi
+      .postInstancesIdClientActionSendMessage(
+        {
+          chatId: `2${phone}@c.us`,
+          message: message,
+        },
+        { id: '21299' }
+      )
+
+      .then(({ data }) => {
+        // Store the verification code and phone in the session or database
+        req.session.verificationCode = code; // Assuming session middleware is used
+        req.session.phone = phone;
+
+        // Send a successful response after setting the session
+        res.status(201).json({ success: true, data });
+      })
+      .catch((err) => {
+        // Handle any error that occurs during the waapi call
+        console.error(err);
+        res.status(500).json({ success: false, error: err });
+      });
   } catch (error) {
     console.log(error);
     res.status(500).send('Internal Server Error');
@@ -367,8 +402,68 @@ const reset_password_post = async (req, res) => {
   }
 };
 
+// ================== Authentication Middleware ====================== //
+
+const authenticateUser = async (req, res, next) => {
+  try {
+    const token = req.cookies.token;
+    
+    if (!token) {
+      return res.redirect('/login');
+    }
+
+    const decoded = jwt.verify(token, jwtSecret);
+    const user = await User.findById(decoded.userId);
+    
+    if (!user) {
+      return res.redirect('/login');
+    }
+    // if(!user.subscribe){
+    //   return res.redirect('/login?StudentCode=' + user.Code);
+    // }
+
+  
+    req.userData = user;
+    next();
+  } catch (error) {
+    console.error('Authentication error:', error);
+    return res.redirect('/login');
+  }
+};
+
+const authenticateTeacher = async (req, res, next) => {
+  try {
+    console.log('authenticateTeacher');
+    const token = req.cookies.token;
+    
+    if (!token) {
+      return res.redirect('/login');
+    }
+
+    const decoded = jwt.verify(token, jwtSecret);
+    const user = await User.findById(decoded.userId);
+    
+    if (!user) {
+      return res.redirect('/login');
+    }
+
+    if (!user.isTeacher) {
+      res.clearCookie('token');
+      return res.redirect('/login');
+    }
+
+    req.userData = user;
+    req.teacherData = user; // Additional reference for teacher
+    next();
+  } catch (error) {
+    console.error('Teacher authentication error:', error);
+    return res.redirect('/login');
+  }
+};
+
 module.exports = {
   home_page,
+  getChaptersByGrade,
   public_login_get,
   public_Register_get,
   public_Register_post,
@@ -378,4 +473,6 @@ module.exports = {
   forgetPassword_post,
   reset_password_get,
   reset_password_post,
+  authenticateUser,
+  authenticateTeacher,
 };
