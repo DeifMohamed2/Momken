@@ -206,7 +206,7 @@ const userSchema = new Schema({
     Grade: {
         type: String,
         required: true,
-        enum: ['Grade1', 'Grade2', 'Grade3'], // Add more grades as needed
+        enum: ["Grade01", "Grade02", "Grade03", "Grade1", "Grade2", "Grade3"], // Add more grades as needed
     },
     gender: {
         type: String,
