@@ -384,6 +384,9 @@
             <p>
               <strong>الصف:</strong>
               <% let gradeName = ''; %>
+              <% if (student.Grade === 'Grade01') gradeName = 'الصف الأول الاعدادي'; %>
+              <% if (student.Grade === 'Grade02') gradeName = 'الصف الثاني الاعدادي'; %>
+              <% if (student.Grade === 'Grade03') gradeName = 'الصف الثالث الاعدادي'; %>
               <% if (student.Grade === 'Grade1') gradeName = 'الصف الأول الثانوي'; %>
               <% if (student.Grade === 'Grade2') gradeName = 'الصف الثاني الثانوي'; %>
               <% if (student.Grade === 'Grade3') gradeName = 'الصف الثالث الثانوي'; %>
@@ -537,6 +540,9 @@
                         </td>
                         <td>
                           <% let chapterGradeName = ''; %>
+                          <% if (chapter.chapterGrade === 'Grade01') chapterGradeName = 'الصف الأول الاعدادي'; %>
+                          <% if (chapter.chapterGrade === 'Grade02') chapterGradeName = 'الصف الثاني الاعدادي'; %>
+                          <% if (chapter.chapterGrade === 'Grade03') chapterGradeName = 'الصف الثالث الاعدادي'; %>
                           <% if (chapter.chapterGrade === 'Grade1') chapterGradeName = 'الصف الأول الثانوي'; %>
                           <% if (chapter.chapterGrade === 'Grade2') chapterGradeName = 'الصف الثاني الثانوي'; %>
                           <% if (chapter.chapterGrade === 'Grade3') chapterGradeName = 'الصف الثالث الثانوي'; %>

@@ -416,6 +416,9 @@
               <label for="filterGrade">الصف</label>
               <select class="filter-select" id="filterGrade">
                 <option value="">الكل</option>
+                <option value="Grade01" <%= filters && filters.grade === 'Grade01' ? 'selected' : '' %>>الصف الأول الاعدادي</option>
+                <option value="Grade02" <%= filters && filters.grade === 'Grade02' ? 'selected' : '' %>>الصف الثاني الاعدادي</option>
+                <option value="Grade03" <%= filters && filters.grade === 'Grade03' ? 'selected' : '' %>>الصف الثالث الاعدادي</option>
                 <option value="Grade1" <%= filters && filters.grade === 'Grade1' ? 'selected' : '' %>>الصف الأول الثانوي</option>
                 <option value="Grade2" <%= filters && filters.grade === 'Grade2' ? 'selected' : '' %>>الصف الثاني الثانوي</option>
                 <option value="Grade3" <%= filters && filters.grade === 'Grade3' ? 'selected' : '' %>>الصف الثالث الثانوي</option>

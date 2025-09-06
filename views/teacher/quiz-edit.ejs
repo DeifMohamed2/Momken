@@ -74,6 +74,9 @@
                 <label class="form-label">الصف الدراسي <span style="color: var(--danger-color)">*</span></label>
                 <select class="form-select" id="Grade" name="Grade" required>
                   <option value="">اختر الصف الدراسي</option>
+                  <option value="Grade01" <%= quiz.Grade === 'Grade01' ? 'selected' : '' %>>الصف الأول الاعدادي</option>
+                  <option value="Grade02" <%= quiz.Grade === 'Grade02' ? 'selected' : '' %>>الصف الثاني الاعدادي</option>
+                  <option value="Grade03" <%= quiz.Grade === 'Grade03' ? 'selected' : '' %>>الصف الثالث الاعدادي</option>
                   <option value="Grade1" <%= quiz.Grade === 'Grade1' ? 'selected' : '' %>>الصف الأول الثانوي</option>
                   <option value="Grade2" <%= quiz.Grade === 'Grade2' ? 'selected' : '' %>>الصف الثاني الثانوي</option>
                   <option value="Grade3" <%= quiz.Grade === 'Grade3' ? 'selected' : '' %>>الصف الثالث الثانوي</option>

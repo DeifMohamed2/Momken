@@ -69,11 +69,17 @@
                 <div>
                   <h4 style="margin: 0; font-size: 1.125rem;"><%= chapter.chapterName %></h4>
                   <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">
-                    <% if(chapter.chapterGrade === '1') { %>
+                    <% if(chapter.chapterGrade === 'Grade01') { %>
+                      الصف الأول الاعدادي
+                    <% } else if(chapter.chapterGrade === 'Grade02') { %>
+                      الصف الثاني الاعدادي
+                    <% } else if(chapter.chapterGrade === 'Grade03') { %>
+                      الصف الثالث الاعدادي
+                    <% } else if(chapter.chapterGrade === 'Grade1') { %>
                       الصف الأول الثانوي
-                    <% } else if(chapter.chapterGrade === '2') { %>
+                    <% } else if(chapter.chapterGrade === 'Grade2') { %>
                       الصف الثاني الثانوي
-                    <% } else if(chapter.chapterGrade === '3') { %>
+                    <% } else if(chapter.chapterGrade === 'Grade3') { %>
                       الصف الثالث الثانوي
                     <% } %>
                   </p>

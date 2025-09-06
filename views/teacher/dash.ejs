@@ -501,7 +501,10 @@
                       <div class="student-details">
                         <span>كود: <%= student.Code %></span>
                         <span>
-                          <%= student.Grade === 'Grade1' ? 'الأول الثانوي' : 
+                          <%= student.Grade === 'Grade01' ? 'الأول الاعدادي' : 
+                             student.Grade === 'Grade02' ? 'الثاني الاعدادي' : 
+                             student.Grade === 'Grade03' ? 'الثالث الاعدادي' :
+                             student.Grade === 'Grade1' ? 'الأول الثانوي' : 
                              student.Grade === 'Grade2' ? 'الثاني الثانوي' : 'الثالث الثانوي' %>
                         </span>
                         <span class="student-badge <%= student.subscribe ? 'active' : 'pending' %>">
@@ -541,7 +544,10 @@
                       <div class="student-details">
                         <span>كود: <%= student.Code %></span>
                         <span>
-                          <%= student.Grade === 'Grade1' ? 'الأول الثانوي' : 
+                          <%= student.Grade === 'Grade01' ? 'الأول الاعدادي' : 
+                             student.Grade === 'Grade02' ? 'الثاني الاعدادي' : 
+                             student.Grade === 'Grade03' ? 'الثالث الاعدادي' :
+                             student.Grade === 'Grade1' ? 'الأول الثانوي' : 
                              student.Grade === 'Grade2' ? 'الثاني الثانوي' : 'الثالث الثانوي' %>
                       </span>
                       </div>
@@ -655,7 +661,10 @@
       
       <% if (gradeStats && gradeStats.length > 0) { %>
         <% gradeStats.forEach((grade, index) => { %>
-          gradeLabels.push('<%= grade._id === "Grade1" ? "الأول الثانوي" : 
+          gradeLabels.push('<%= grade._id === "Grade01" ? "الأول الاعدادي" : 
+                              grade._id === "Grade02" ? "الثاني الاعدادي" : 
+                              grade._id === "Grade03" ? "الثالث الاعدادي" :
+                              grade._id === "Grade1" ? "الأول الثانوي" : 
                               grade._id === "Grade2" ? "الثاني الثانوي" : "الثالث الثانوي" %>');
           gradeCounts.push(<%= grade.count %>);
         <% }); %>

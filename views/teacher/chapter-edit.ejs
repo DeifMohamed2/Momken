@@ -64,9 +64,12 @@
                 <label class="form-label">الصف الدراسي <span style="color: var(--danger-color)">*</span></label>
                 <select class="form-select" id="chapterGrade" name="chapterGrade" required>
                   <option value="" disabled>اختر الصف</option>
-                  <option value="1" <%= chapter.chapterGrade === '1' ? 'selected' : '' %>>الصف الأول الثانوي</option>
-                  <option value="2" <%= chapter.chapterGrade === '2' ? 'selected' : '' %>>الصف الثاني الثانوي</option>
-                  <option value="3" <%= chapter.chapterGrade === '3' ? 'selected' : '' %>>الصف الثالث الثانوي</option>
+                  <option value="Grade01" <%= chapter.chapterGrade === 'Grade01' ? 'selected' : '' %>>الصف الأول الاعدادي</option>
+                  <option value="Grade02" <%= chapter.chapterGrade === 'Grade02' ? 'selected' : '' %>>الصف الثاني الاعدادي</option>
+                  <option value="Grade03" <%= chapter.chapterGrade === 'Grade03' ? 'selected' : '' %>>الصف الثالث الاعدادي</option>
+                  <option value="Grade1" <%= chapter.chapterGrade === 'Grade1' ? 'selected' : '' %>>الصف الأول الثانوي</option>
+                  <option value="Grade2" <%= chapter.chapterGrade === 'Grade2' ? 'selected' : '' %>>الصف الثاني الثانوي</option>
+                  <option value="Grade3" <%= chapter.chapterGrade === 'Grade3' ? 'selected' : '' %>>الصف الثالث الثانوي</option>
                 </select>
               </div>
               
@@ -146,11 +149,17 @@
                 
                 <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
                   <span id="previewGrade" class="status-badge" style="background: var(--info-color);">
-                    <% if(chapter.chapterGrade === '1') { %>
+                    <% if(chapter.chapterGrade === 'Grade01') { %>
+                      الصف الأول الاعدادي
+                    <% } else if(chapter.chapterGrade === 'Grade02') { %>
+                      الصف الثاني الاعدادي
+                    <% } else if(chapter.chapterGrade === 'Grade03') { %>
+                      الصف الثالث الاعدادي
+                    <% } else if(chapter.chapterGrade === 'Grade1') { %>
                       الصف الأول الثانوي
-                    <% } else if(chapter.chapterGrade === '2') { %>
+                    <% } else if(chapter.chapterGrade === 'Grade2') { %>
                       الصف الثاني الثانوي
-                    <% } else if(chapter.chapterGrade === '3') { %>
+                    <% } else if(chapter.chapterGrade === 'Grade3') { %>
                       الصف الثالث الثانوي
                     <% } %>
                   </span>
@@ -267,9 +276,12 @@
     
     gradeSelect.addEventListener('change', function() {
       let gradeText = '';
-      if (this.value === '1') gradeText = 'الصف الأول الثانوي';
-      else if (this.value === '2') gradeText = 'الصف الثاني الثانوي';
-      else if (this.value === '3') gradeText = 'الصف الثالث الثانوي';
+      if (this.value === 'Grade01') gradeText = 'الصف الأول الاعدادي';
+      else if (this.value === 'Grade02') gradeText = 'الصف الثاني الاعدادي';
+      else if (this.value === 'Grade03') gradeText = 'الصف الثالث الاعدادي';
+      else if (this.value === 'Grade1') gradeText = 'الصف الأول الثانوي';
+      else if (this.value === 'Grade2') gradeText = 'الصف الثاني الثانوي';
+      else if (this.value === 'Grade3') gradeText = 'الصف الثالث الثانوي';
       previewGrade.textContent = gradeText;
     });
     

@@ -86,6 +86,9 @@
                 <div class="detail-item">
                   <span class="detail-label">الصف الدراسي:</span>
                   <span class="detail-value">
+                    <% if (chapter.chapterGrade === 'Grade01') { %>الصف الأول الاعدادي<% } %>
+                    <% if (chapter.chapterGrade === 'Grade02') { %>الصف الثاني الاعدادي<% } %>
+                    <% if (chapter.chapterGrade === 'Grade03') { %>الصف الثالث الاعدادي<% } %>
                     <% if (chapter.chapterGrade === 'Grade1') { %>الصف الأول الثانوي<% } %>
                     <% if (chapter.chapterGrade === 'Grade2') { %>الصف الثاني الثانوي<% } %>
                     <% if (chapter.chapterGrade === 'Grade3') { %>الصف الثالث الثانوي<% } %>
@@ -390,6 +393,9 @@
                       <td><%= student.Code %></td>
                       <td>
                         <% let gradeName = ''; %>
+                        <% if (student.Grade === 'Grade01') gradeName = 'الصف الأول الاعدادي'; %>
+                        <% if (student.Grade === 'Grade02') gradeName = 'الصف الثاني الاعدادي'; %>
+                        <% if (student.Grade === 'Grade03') gradeName = 'الصف الثالث الاعدادي'; %>
                         <% if (student.Grade === 'Grade1') gradeName = 'الصف الأول الثانوي'; %>
                         <% if (student.Grade === 'Grade2') gradeName = 'الصف الثاني الثانوي'; %>
                         <% if (student.Grade === 'Grade3') gradeName = 'الصف الثالث الثانوي'; %>

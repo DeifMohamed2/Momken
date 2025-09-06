@@ -104,15 +104,45 @@
                             <form action="/teacher/studentsRequests" method="get">
                              
                                     <select name="Grade" class="Grade">
-                                        <% if (Grade=="Grade1") { %>
+                                        <% if (Grade=="Grade01") { %>
+                                            <option selected value="Grade01">الصف الأول الاعدادي</option>
+                                            <option value="Grade02">الصف الثاني الاعدادي</option>
+                                            <option value="Grade03">الصف الثالث الاعدادي</option>
+                                            <option value="Grade1">الصف الاول الثانوي</option>
+                                            <option value="Grade2">الصف الثاني الثانوي </option>
+                                            <option value="Grade3">الصف الثالث الثانوي</option>
+                                        <% } else if(Grade=="Grade02"){ %>
+                                            <option value="Grade01">الصف الأول الاعدادي</option>
+                                            <option selected value="Grade02">الصف الثاني الاعدادي</option>
+                                            <option value="Grade03">الصف الثالث الاعدادي</option>
+                                            <option value="Grade1">الصف الاول الثانوي</option>
+                                            <option value="Grade2">الصف الثاني الثانوي </option>
+                                            <option value="Grade3">الصف الثالث الثانوي</option>
+                                        <% } else if(Grade=="Grade03"){ %>
+                                            <option value="Grade01">الصف الأول الاعدادي</option>
+                                            <option value="Grade02">الصف الثاني الاعدادي</option>
+                                            <option selected value="Grade03">الصف الثالث الاعدادي</option>
+                                            <option value="Grade1">الصف الاول الثانوي</option>
+                                            <option value="Grade2">الصف الثاني الثانوي </option>
+                                            <option value="Grade3">الصف الثالث الثانوي</option>
+                                        <% } else if (Grade=="Grade1") { %>
+                                            <option value="Grade01">الصف الأول الاعدادي</option>
+                                            <option value="Grade02">الصف الثاني الاعدادي</option>
+                                            <option value="Grade03">الصف الثالث الاعدادي</option>
                                             <option selected value="Grade1">الصف الاول الثانوي</option>
                                             <option value="Grade2">الصف الثاني الثانوي </option>
                                             <option value="Grade3">الصف الثالث الثانوي</option>
                                         <% } else if(Grade=="Grade2"){ %>
+                                            <option value="Grade01">الصف الأول الاعدادي</option>
+                                            <option value="Grade02">الصف الثاني الاعدادي</option>
+                                            <option value="Grade03">الصف الثالث الاعدادي</option>
                                             <option  value="Grade1">الصف الاول الثانوي</option>
                                             <option  selected value="Grade2">الصف الثاني الثانوي </option>
                                             <option  value="Grade3">الصف الثالث الثانوي</option>
                                         <% } else {%>
+                                            <option value="Grade01">الصف الأول الاعدادي</option>
+                                            <option value="Grade02">الصف الثاني الاعدادي</option>
+                                            <option value="Grade03">الصف الثالث الاعدادي</option>
                                             <option  value="Grade1">الصف الاول الثانوي</option>
                                             <option  value="Grade2">الصف الثاني الثانوي </option>
                                             <option  selected value="Grade3">الصف الثالث الثانوي</option>
