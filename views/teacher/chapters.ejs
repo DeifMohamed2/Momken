@@ -123,7 +123,13 @@
                     <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-secondary);">
                       <span>
                         <i class="fas fa-graduation-cap" style="margin-left: 0.25rem;"></i>
-                        <%= chapter.chapterGrade === 'Grade1' ? 'الأول الثانوي' : chapter.chapterGrade === 'Grade2' ? 'الثاني الثانوي' : 'الثالث الثانوي' %>
+                        <%= chapter.chapterGrade === 'Grade01' ? 'الأول الاعدادي' : 
+                           chapter.chapterGrade === 'Grade02' ? 'الثاني الاعدادي' : 
+                           chapter.chapterGrade === 'Grade03' ? 'الثالث الاعدادي' : 
+                           chapter.chapterGrade === 'Grade1' ? 'الأول الثانوي' : 
+                           chapter.chapterGrade === 'Grade2' ? 'الثاني الثانوي' : 
+                           chapter.chapterGrade === 'Grade3' ? 'الثالث الثانوي' : 
+                           'غير محدد' %>
                       </span>
                       <span>
                         <i class="fas fa-globe" style="margin-left: 0.25rem;"></i>

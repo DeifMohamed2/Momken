@@ -182,6 +182,9 @@
                       <% if (student.Grade === 'Grade1') gradeName = 'الصف الأول الثانوي'; %>
                       <% if (student.Grade === 'Grade2') gradeName = 'الصف الثاني الثانوي'; %>
                       <% if (student.Grade === 'Grade3') gradeName = 'الصف الثالث الثانوي'; %>
+                      <% if (student.Grade === 'Grade01') gradeName = 'الصف الأول الاعدادي'; %>
+                      <% if (student.Grade === 'Grade02') gradeName = 'الصف الثاني الاعدادي'; %>
+                      <% if (student.Grade === 'Grade03') gradeName = 'الصف الثالث الاعدادي'; %>
                       <%= gradeName %>
                     </td>
                     <td><%= student.phone %></td>
@@ -255,6 +258,9 @@
                     <% if (student.Grade === 'Grade1') gradeName = 'الصف الأول الثانوي'; %>
                     <% if (student.Grade === 'Grade2') gradeName = 'الصف الثاني الثانوي'; %>
                     <% if (student.Grade === 'Grade3') gradeName = 'الصف الثالث الثانوي'; %>
+                    <% if (student.Grade === 'Grade01') gradeName = 'الصف الأول الاعدادي'; %>
+                    <% if (student.Grade === 'Grade02') gradeName = 'الصف الثاني الاعدادي'; %>
+                    <% if (student.Grade === 'Grade03') gradeName = 'الصف الثالث الاعدادي'; %>
                     <span><%= gradeName %></span>
                   </div>
                   

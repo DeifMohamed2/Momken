@@ -640,6 +640,12 @@
                         الثاني الثانوي
                       <% } else if (exam.Grade === 'Grade3') { %>
                         الثالث الثانوي
+                      <% } else if (exam.Grade === 'Grade01') { %>
+                        الأول الاعدادي
+                      <% } else if (exam.Grade === 'Grade02') { %>
+                        الثاني الاعدادي
+                      <% } else if (exam.Grade === 'Grade03') { %>
+                        الثالث الاعدادي
                       <% } else { %>
                         <%= exam.Grade %>
                       <% } %>
@@ -655,6 +661,12 @@
                     الصف الثاني الثانوي
                   <% } else if (exam.Grade === 'Grade3') { %>
                     الصف الثالث الثانوي
+                  <% } else if (exam.Grade === 'Grade01') { %>
+                    الصف الأول الاعدادي
+                  <% } else if (exam.Grade === 'Grade02') { %>
+                    الصف الثاني الاعدادي
+                  <% } else if (exam.Grade === 'Grade03') { %>
+                    الصف الثالث الاعدادي
                   <% } else { %>
                     <%= exam.Grade %>
                   <% } %>
