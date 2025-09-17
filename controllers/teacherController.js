@@ -175,7 +175,7 @@ const chapters_get = async (req, res) => {
     const { grade, search, page = 1 } = req.query;
     const perPage = 12;
     
-    let query = { isActive: true };
+    let query = {};
     if (grade) query.chapterGrade = grade;
     if (search) {
       query.chapterName = { $regex: search, $options: 'i' };
@@ -185,7 +185,7 @@ const chapters_get = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(perPage * page)
       .skip((page - 1) * perPage);
-    
+      console.log('chapters', chapters,grade);
     const totalChapters = await Chapter.countDocuments(query);
     
     // Add statistics to each chapter
