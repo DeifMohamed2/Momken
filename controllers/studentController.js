@@ -23,7 +23,7 @@ const dash_get = async (req, res) => {
     // Get user's chapters with proper filtering
     const userChapters = await Chapter.find({
       chapterGrade: userGrade,
-      ARorEN: req.userData.ARorEN,
+      // ARorEN: req.userData.ARorEN,
       isActive: true
     }).select('chapterName _id');
 
@@ -120,10 +120,10 @@ const chapters_get = async (req, res) => {
   try {
     const chapters = await Chapter.find({
       chapterGrade: req.userData.Grade,
-      ARorEN: req.userData.ARorEN,
+      // ARorEN: req.userData.ARorEN,
       isActive: true
     }).sort({ createdAt: 1 });
-    
+    console.log('chapters', chapters,req.userData.Grade);
     const paidChapters = chapters.map((chapter) => {
       const isPaid = req.userData.hasChapterAccess(chapter._id);
       

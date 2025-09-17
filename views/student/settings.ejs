@@ -469,7 +469,14 @@
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
                 <div class="form-group">
                   <label for="grade" class="form-label">الصف الدراسي</label>
-                  <input type="text" id="grade" class="form-input" value="<%= userData ? (userData.Grade === 'Grade1' ? 'الصف الأول الثانوي' : userData.Grade === 'Grade2' ? 'الصف الثاني الثانوي' : 'الصف الثالث الثانوي') : 'غير محدد' %>" readonly style="background: var(--gray-100);">
+                  <input type="text" id="grade" class="form-input" value="<%= userData ? (
+                    userData.Grade === 'Grade01' ? 'الصف الأول الاعدادي' : 
+                    userData.Grade === 'Grade02' ? 'الصف الثاني الاعدادي' : 
+                    userData.Grade === 'Grade03' ? 'الصف الثالث الاعدادي' : 
+                    userData.Grade === 'Grade1' ? 'الصف الأول الثانوي' : 
+                    userData.Grade === 'Grade2' ? 'الصف الثاني الثانوي' : 
+                    userData.Grade === 'Grade3' ? 'الصف الثالث الثانوي' : 'غير محدد'
+                  ) : 'غير محدد' %>" readonly style="background: var(--gray-100);">
                 </div>
                 
                 <div class="form-group">

@@ -77,6 +77,13 @@
               <h1 class="quiz-title"><%= quiz.quizName %></h1>
               <div class="quiz-grade">
                 <i class="fas fa-graduation-cap"></i>
+                <% if (quiz.Grade === 'Grade01') { %>
+                  الصف الأول الاعدادي
+                <% } else if (quiz.Grade === 'Grade02') { %>
+                  الصف الثاني الاعدادي
+                <% } else if (quiz.Grade === 'Grade03') { %>
+                  الصف الثالث الاعدادي
+                <% } %>
                 <% if (quiz.Grade === 'Grade1') { %>
                   الصف الأول الثانوي
                 <% } else if (quiz.Grade === 'Grade2') { %>

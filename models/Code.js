@@ -23,7 +23,7 @@ const CodeSchema = new Schema({
     codeGrade: {
         type: String,
         required: true,
-        enum: ['Grade1', 'Grade2', 'Grade3', 'AllGrades'], // Add AllGrades option
+        enum: ['Grade1', 'Grade2', 'Grade3', 'AllGrades', 'Grade01', 'Grade02', 'Grade03'], // Add AllGrades option
     },
     // Flag to indicate if code works for all grades
     isAllGrades: {
@@ -93,7 +93,7 @@ const CodeSchema = new Schema({
     // Track which grades can use this code
     allowedGrades: [{
         type: String,
-        enum: ['Grade1', 'Grade2', 'Grade3']
+        enum: ['Grade1', 'Grade2', 'Grade3', 'Grade01', 'Grade02', 'Grade03']
     }],
     // Track usage limits
     usageLimit: {
