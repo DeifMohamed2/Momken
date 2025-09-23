@@ -591,7 +591,7 @@
                                         <% } else if (hasAccess) { %>
                                         <span class="status-badge status-owned">مملوك</span>
                                         <% } else { %>
-                                        <span class="status-badge status-paid"><%= lecture.lecturePrice || lecture.price || '25' %> جنيه</span>
+                                        <span class="status-badge status-paid"><%= lecture.videoPrice || '25' %> جنيه</span>
                                         <% } %>
                                     </div>
                                 </div>
@@ -611,7 +611,7 @@
                                     <% } else { %>
                                         <button class="btn-video btn-purchase" onclick="showCodeModal('video', '<%= lecture._id %>', '<%= lecture.lectureName || lecture.videoName %>', '<%= chapter._id %>')">
                                             <i class="fas fa-shopping-cart"></i>
-                                            شراء (<span class="price-display"><%= lecture.lecturePrice || lecture.price || '25' %> ج</span>)
+                                            شراء (<span class="price-display"><%= lecture.videoPrice || '25' %> ج</span>)
                                         </button>
                                     <% } %>
                                     <button class="btn-video btn-info" title="معلومات الدرس">
@@ -669,7 +669,7 @@
                                         <% } else if (hasAccess) { %>
                                         <span class="status-badge status-owned">مملوك</span>
                                         <% } else { %>
-                                        <span class="status-badge status-paid"><%= summary.lecturePrice || summary.price || '15' %> جنيه</span>
+                                        <span class="status-badge status-paid"><%= summary.videoPrice || '15' %> جنيه</span>
                                         <% } %>
                                     </div>
                                 </div>
@@ -689,7 +689,7 @@
                                     <% } else { %>
                                         <button class="btn-video btn-purchase" onclick="showCodeModal('video', '<%= summary._id %>', '<%= summary.lectureName || summary.videoName %>', '<%= chapter._id %>')">
                                             <i class="fas fa-shopping-cart"></i>
-                                            شراء (<span class="price-display"><%= summary.lecturePrice || summary.price || '15' %> ج</span>)
+                                            شراء (<span class="price-display"><%= summary.videoPrice || '15' %> ج</span>)
                                         </button>
                                     <% } %>
                                     <button class="btn-video btn-info" title="معلومات الملخص">
@@ -747,7 +747,7 @@
                                         <% } else if (hasAccess) { %>
                                         <span class="status-badge status-owned">مملوك</span>
                                         <% } else { %>
-                                        <span class="status-badge status-paid"><%= solving.lecturePrice || solving.price || '20' %> جنيه</span>
+                                        <span class="status-badge status-paid"><%= solving.videoPrice || '20' %> جنيه</span>
                                         <% } %>
                                     </div>
                                 </div>
@@ -767,7 +767,7 @@
                                     <% } else { %>
                                         <button class="btn-video btn-purchase" onclick="showCodeModal('video', '<%= solving._id %>', '<%= solving.lectureName || solving.videoName %>', '<%= chapter._id %>')">
                                             <i class="fas fa-shopping-cart"></i>
-                                            شراء (<span class="price-display"><%= solving.lecturePrice || solving.price || '20' %> ج</span>)
+                                            شراء (<span class="price-display"><%= solving.videoPrice || '20' %> ج</span>)
                                         </button>
                                     <% } %>
                                     <button class="btn-video btn-info" title="معلومات التطبيق">
