@@ -154,6 +154,12 @@ const ChapterSchema = new Schema({
     type: Number, 
     required: true, 
   },
+  // Teacher reference for multi-tenant functionality
+  teacherId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Teacher',
+    default: null
+  },
   
   // New organized structure
   sections: [SectionSchema],

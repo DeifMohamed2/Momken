@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/bootstrap.rtl.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <style>
+    .image-upload-container {
+      border: 2px dashed #dee2e6;
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      background-color: #f8f9fa;
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    
+    .image-upload-container.highlight {
+      border-color: #007bff;
+      background-color: rgba(0, 123, 255, 0.08);
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+    
+    .image-upload-preview {
+      margin-bottom: 1rem;
+      position: relative;
+      max-width: 250px;
+      margin: 0 auto 1rem;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .image-upload-preview img {
+      width: 100%;
+      border-radius: 8px;
+      max-height: 150px;
+      object-fit: contain;
+      display: block;
+      background-color: #fff;
+    }
+    
+    .image-upload-controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    
+    .upload-status {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+    
+    .upload-status.uploading {
+      color: #007bff;
+      display: flex;
+    }
+    
+    .upload-status.success {
+      color: #28a745;
+      display: flex;
+    }
+    
+    .upload-status.error {
+      color: #dc3545;
+      display: flex;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <%- include('./partials/sidebar', { currentPage: 'teacher-create' }) %>
+
+      <!-- Main content -->
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">إضافة معلم جديد</h1>
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+              <a href="/admin/teachers" class="btn btn-sm btn-outline-secondary">العودة للمعلمين</a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="alert alert-info mb-4">
+          <i class="bi bi-info-circle me-2"></i>
+          يمكنك إنشاء حساب معلم جديد بالكامل من هنا. سيتم إنشاء حساب المستخدم وملف تعريف المعلم في خطوة واحدة.
+        </div>
+
+        <% if (error) { %>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% } %>
+        
+        <% if (success) { %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% } %>
+        
+        <!-- Dynamic alerts container -->
+        <div id="alertsContainer"></div>
+
+        <div class="card">
+          <div class="card-body">
+            <form action="/admin/teachers/create" method="POST" class="row g-3">
+              <div class="col-12">
+                <h4>معلومات الحساب</h4>
+                <hr>
+              </div>
+              
+              <div class="col-md-6">
+                <label for="username" class="form-label">اسم المستخدم</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+              </div>
+              
+              <div class="col-md-6">
+                <label for="password" class="form-label">كلمة المرور</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+                <div class="form-text">يجب أن تكون كلمة المرور 8 أحرف على الأقل</div>
+              </div>
+              
+              <div class="col-md-6">
+                <label for="userPhone" class="form-label">رقم هاتف الحساب</label>
+                <input type="text" class="form-control" id="userPhone" name="userPhone" required>
+                <div class="form-text">سيتم استخدام هذا الرقم لتسجيل الدخول وكرقم هاتف المعلم</div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="form-check mt-4">
+                  <input class="form-check-input" type="checkbox" id="isAdmin" name="isAdmin" value="true">
+                  <label class="form-check-label" for="isAdmin">
+                    منح صلاحيات الإدارة
+                  </label>
+                  <div class="form-text">سيتمكن المعلم من الوصول إلى لوحة الإدارة</div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <h4>المعلومات الأساسية</h4>
+                <hr>
+              </div>
+
+              <div class="col-md-6">
+                <label for="name" class="form-label">اسم المعلم</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="slug" class="form-label">الرابط المخصص</label>
+                <div class="input-group">
+                  <span class="input-group-text">momkenacademy.com/</span>
+                  <input type="text" class="form-control" id="slug" name="slug" placeholder="mr-teacher">
+                </div>
+                <div class="form-text">يجب أن يكون الرابط فريدًا ويحتوي على أحرف إنجليزية وأرقام وشرطات فقط. سيتم تحويل النص العربي تلقائيًا إلى رابط باللغة الإنجليزية.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="email" class="form-label">البريد الإلكتروني</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+              </div>
+
+              <!-- Phone field removed as we're using userPhone for both fields -->
+
+              <div class="col-12">
+                <h4>معلومات العلامة التجارية</h4>
+                <hr>
+              </div>
+
+              <!-- Brand name field removed as we're using teacher name -->
+
+              <div class="col-md-12">
+                <label for="description" class="form-label">وصف المعلم</label>
+                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+              </div>
+
+              <div class="col-md-6">
+                <label for="logoImage" class="form-label">الشعار</label>
+                <div class="image-upload-container" id="logoUploadContainer">
+                  <div class="image-upload-preview" id="logoPreview">
+                    <img src="/assetsLanding/img/logoMomke.png" alt="صورة الشعار" id="logoPreviewImage">
+                  </div>
+                  <div class="image-upload-controls">
+                    <label for="logoFileInput" class="btn btn-primary" style="margin-bottom: 0;">
+                      <i class="bi bi-cloud-upload"></i>
+                      اختر صورة
+                    </label>
+                    <input type="file" id="logoFileInput" accept="image/*" class="d-none">
+                    <input type="hidden" id="logoImage" name="logoImage" value="/assetsLanding/img/logoMomke.png">
+                    <button type="button" class="btn btn-outline-secondary" id="resetLogoImage" style="margin-bottom: 0;">
+                      <i class="bi bi-trash"></i>
+                      إزالة
+                    </button>
+                  </div>
+                  <div class="progress mt-2 d-none" id="logoProgressContainer">
+                    <div class="progress-bar" id="logoProgressBar" role="progressbar" style="width: 0%"></div>
+                  </div>
+                  <div class="upload-status mt-2" id="logoUploadStatus"></div>
+                  <div class="form-text">
+                    <i class="bi bi-info-circle"></i> يمكنك سحب وإفلات الصورة هنا، أو اضغط لاختيار صورة
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="coverImage" class="form-label">صورة الغلاف</label>
+                <div class="image-upload-container" id="coverUploadContainer">
+                  <div class="image-upload-preview" id="coverPreview">
+                    <img src="/assetsLanding/img/in-front.jpg" alt="صورة الغلاف" id="coverPreviewImage">
+                  </div>
+                  <div class="image-upload-controls">
+                    <label for="coverFileInput" class="btn btn-primary" style="margin-bottom: 0;">
+                      <i class="bi bi-cloud-upload"></i>
+                      اختر صورة
+                    </label>
+                    <input type="file" id="coverFileInput" accept="image/*" class="d-none">
+                    <input type="hidden" id="coverImage" name="coverImage" value="/assetsLanding/img/in-front.jpg">
+                    <button type="button" class="btn btn-outline-secondary" id="resetCoverImage" style="margin-bottom: 0;">
+                      <i class="bi bi-trash"></i>
+                      إزالة
+                    </button>
+                  </div>
+                  <div class="progress mt-2 d-none" id="coverProgressContainer">
+                    <div class="progress-bar" id="coverProgressBar" role="progressbar" style="width: 0%"></div>
+                  </div>
+                  <div class="upload-status mt-2" id="coverUploadStatus"></div>
+                  <div class="form-text">
+                    <i class="bi bi-info-circle"></i> يمكنك سحب وإفلات الصورة هنا، أو اضغط لاختيار صورة
+                  </div>
+                </div>
+              </div>
+
+              <!-- Color fields removed as requested -->
+
+              <div class="col-12">
+                <h4>وسائل التواصل الاجتماعي</h4>
+                <hr>
+              </div>
+
+              <div class="col-md-12">
+                <label for="facebook" class="form-label">فيسبوك (اختياري)</label>
+                <input type="text" class="form-control" id="facebook" name="facebook" placeholder="https://facebook.com/page">
+                <div class="form-text">أدخل رابط صفحة الفيسبوك الخاصة بالمعلم (اختياري)</div>
+              </div>
+
+              <div class="col-12">
+                <h4>الإعدادات</h4>
+                <hr>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="isDefault" name="isDefault" value="true">
+                  <label class="form-check-label" for="isDefault">
+                    جعل هذا المعلم افتراضيًا
+                  </label>
+                  <div class="form-text">سيتم عرض معلومات هذا المعلم على الصفحة الرئيسية</div>
+                </div>
+              </div>
+
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-primary">إضافة المعلم</button>
+                <a href="/admin/teachers" class="btn btn-secondary">إلغاء</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Cloudinary configuration
+    const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dusod9wxt/upload';
+    const CLOUDINARY_UPLOAD_PRESET = 'order_project';
+
+    // Auto-generate slug from name with Arabic character handling
+    document.getElementById('name').addEventListener('input', function() {
+      const nameValue = this.value;
+      const slugField = document.getElementById('slug');
+      
+      // Only auto-generate if slug field is empty or hasn't been manually edited
+      if (!slugField.dataset.edited) {
+        // Arabic to English character mapping
+        const arabicToEnglishMap = {
+          'أ': 'a', 'إ': 'e', 'آ': 'a', 'ا': 'a',
+          'ب': 'b', 'ت': 't', 'ث': 'th',
+          'ج': 'j', 'ح': 'h', 'خ': 'kh',
+          'د': 'd', 'ذ': 'th', 'ر': 'r', 'ز': 'z',
+          'س': 's', 'ش': 'sh', 'ص': 's', 'ض': 'd',
+          'ط': 't', 'ظ': 'z', 'ع': 'a', 'غ': 'gh',
+          'ف': 'f', 'ق': 'q', 'ك': 'k', 'ل': 'l',
+          'م': 'm', 'ن': 'n', 'ه': 'h', 'و': 'w',
+          'ي': 'y', 'ى': 'a', 'ئ': 'e', 'ء': 'a',
+          'ؤ': 'o', 'ة': 'h'
+        };
+        
+        // Convert Arabic characters to English equivalents
+        let nameInEnglish = '';
+        for (let i = 0; i < nameValue.length; i++) {
+          if (arabicToEnglishMap[nameValue[i]]) {
+            nameInEnglish += arabicToEnglishMap[nameValue[i]];
+          } else {
+            nameInEnglish += nameValue[i];
+          }
+        }
+        
+        // Create the slug
+        const slug = nameInEnglish
+          .toLowerCase()
+          .replace(/\s+/g, '-')           // Replace spaces with -
+          .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+          .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+          .replace(/^-+/, '')             // Trim - from start of text
+          .replace(/-+$/, '');            // Trim - from end of text
+        
+        // If slug is empty after processing, use a default with timestamp
+        slugField.value = slug || 'teacher-' + Date.now().toString().slice(-6);
+        
+        // Show a message about the auto-generated slug
+        if (nameValue.match(/[\u0600-\u06FF]/)) { // If contains Arabic characters
+          const slugHelp = document.querySelector('#slug').nextElementSibling;
+          if (slugHelp) {
+            slugHelp.innerHTML = 'تم تحويل النص العربي إلى رابط باللغة الإنجليزية. يمكنك تغييره إذا كنت ترغب في ذلك.';
+          }
+        }
+      }
+    });
+
+    // Mark slug as edited when user changes it
+    document.getElementById('slug').addEventListener('input', function() {
+      this.dataset.edited = 'true';
+    });
+
+    // Image upload functionality
+    function setupImageUpload(fileInputId, previewImageId, imageInputId, containerElementId, progressContainerId, progressBarId, uploadStatusId, defaultImageUrl) {
+      const fileInput = document.getElementById(fileInputId);
+      const previewImage = document.getElementById(previewImageId);
+      const imageInput = document.getElementById(imageInputId);
+      const container = document.getElementById(containerElementId);
+      const progressContainer = document.getElementById(progressContainerId);
+      const progressBar = document.getElementById(progressBarId);
+      const uploadStatus = document.getElementById(uploadStatusId);
+      const resetButton = document.getElementById('reset' + fileInputId.replace('FileInput', 'Image'));
+      
+      // Check if elements exist to prevent errors
+      if (!fileInput || !previewImage || !imageInput || !container || !progressContainer || !progressBar || !uploadStatus) {
+        console.error('One or more elements not found for', fileInputId);
+        return;
+      }
+      
+      // Reset image to default (if reset button exists)
+      if (resetButton) {
+        resetButton.addEventListener('click', function() {
+          previewImage.src = defaultImageUrl;
+          imageInput.value = defaultImageUrl;
+          fileInput.value = '';
+          updateUploadStatus(uploadStatusId, 'success', 'تم إزالة الصورة بنجاح');
+        });
+      }
+      
+      // File input change handler - automatically upload when file is selected
+      fileInput.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+          handleFiles(this.files, fileInputId);
+        }
+      });
+      
+      // Handle drag and drop
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        container.addEventListener(eventName, preventDefaults, false);
+      });
+      
+      ['dragenter', 'dragover'].forEach(eventName => {
+        container.addEventListener(eventName, function() {
+          container.classList.add('highlight');
+        }, false);
+      });
+      
+      ['dragleave', 'drop'].forEach(eventName => {
+        container.addEventListener(eventName, function() {
+          container.classList.remove('highlight');
+        }, false);
+      });
+      
+      container.addEventListener('drop', function(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files.length) {
+          handleFiles(files, fileInputId);
+        }
+      }, false);
+      
+      function handleFiles(files, inputId) {
+        if (files[0]) {
+          const file = files[0];
+          
+          // Check file size (max 2MB)
+          if (file.size > 2 * 1024 * 1024) {
+            showAlert('خطأ', 'حجم الملف كبير جدًا. الحد الأقصى هو 2 ميجابايت.');
+            updateUploadStatus(uploadStatusId, 'error', 'حجم الملف كبير جدًا (الحد الأقصى: 2MB)');
+            return;
+          }
+          
+          // Check file type
+          if (!file.type.match('image.*')) {
+            showAlert('خطأ', 'يرجى اختيار صورة صالحة.');
+            updateUploadStatus(uploadStatusId, 'error', 'نوع الملف غير مدعوم. يرجى اختيار صورة.');
+            return;
+          }
+          
+          // Show preview
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            previewImage.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+          
+          // Upload to Cloudinary
+          uploadToCloudinary(file, imageInputId, progressContainerId, progressBarId, uploadStatusId);
+        }
+      }
+    }
+    
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    function uploadToCloudinary(file, imageInputId, progressContainerId, progressBarId, uploadStatusId) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      
+      // Show progress container
+      const progressContainer = document.getElementById(progressContainerId);
+      const progressBar = document.getElementById(progressBarId);
+      progressContainer.classList.remove('d-none');
+      progressBar.style.width = '0%';
+      
+      updateUploadStatus(uploadStatusId, 'uploading', '<i class="bi bi-arrow-repeat spin me-1"></i> جاري رفع الصورة...');
+      
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', CLOUDINARY_URL, true);
+      
+      // Track upload progress
+      xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+          const percentComplete = Math.round((e.loaded / e.total) * 100);
+          progressBar.style.width = percentComplete + '%';
+          updateUploadStatus(uploadStatusId, 'uploading', `<i class="bi bi-arrow-repeat spin me-1"></i> جاري الرفع... ${percentComplete}%`);
+        }
+      };
+      
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          document.getElementById(imageInputId).value = response.secure_url;
+          
+          // Update status
+          updateUploadStatus(uploadStatusId, 'success', '<i class="bi bi-check-circle me-1"></i> تم رفع الصورة بنجاح!');
+          
+          // Hide progress container after a short delay
+          setTimeout(() => {
+            progressContainer.classList.add('d-none');
+          }, 1000);
+        } else {
+          updateUploadStatus(uploadStatusId, 'error', '<i class="bi bi-exclamation-triangle me-1"></i> حدث خطأ أثناء رفع الصورة.');
+          progressContainer.classList.add('d-none');
+        }
+      };
+      
+      xhr.onerror = function() {
+        updateUploadStatus(uploadStatusId, 'error', '<i class="bi bi-exclamation-triangle me-1"></i> حدث خطأ في الاتصال.');
+        progressContainer.classList.add('d-none');
+      };
+      
+      xhr.send(formData);
+    }
+    
+    function updateUploadStatus(elementId, status, message) {
+      const uploadStatus = document.getElementById(elementId);
+      uploadStatus.innerHTML = message;
+      uploadStatus.className = 'upload-status'; // Clear previous classes
+      uploadStatus.classList.add(status);
+      
+      // Auto-hide success status after 5 seconds
+      if (status === 'success') {
+        setTimeout(() => {
+          uploadStatus.style.display = 'none';
+        }, 5000);
+      }
+    }
+    
+    function showAlert(type, message) {
+      const alertsContainer = document.getElementById('alertsContainer');
+      const alertId = 'alert-' + Date.now();
+      
+      const alertElement = document.createElement('div');
+      alertElement.id = alertId;
+      alertElement.className = `alert alert-${type} alert-dismissible fade show`;
+      alertElement.role = 'alert';
+      
+      alertElement.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      `;
+      
+      alertsContainer.appendChild(alertElement);
+      
+      // Auto-dismiss after 5 seconds
+      setTimeout(() => {
+        const alert = document.getElementById(alertId);
+        if (alert) {
+          const bsAlert = new bootstrap.Alert(alert);
+          bsAlert.close();
+        }
+      }, 5000);
+    }
+    
+    // Add spin animation for loading icon
+    document.head.insertAdjacentHTML('beforeend', `
+      <style>
+        .spin {
+          animation: spin 1.5s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      </style>
+    `);
+    
+    // Initialize image upload for logo and cover
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM fully loaded, initializing image upload functionality');
+      
+      // Check if elements exist before setup
+      const elementsToCheck = [
+        { id: 'logoFileInput', name: 'Logo file input' },
+        { id: 'logoPreviewImage', name: 'Logo preview image' },
+        { id: 'logoImage', name: 'Logo hidden input' },
+        { id: 'logoUploadContainer', name: 'Logo upload container' },
+        { id: 'logoProgressContainer', name: 'Logo progress container' },
+        { id: 'logoProgressBar', name: 'Logo progress bar' },
+        { id: 'logoUploadStatus', name: 'Logo upload status' },
+        { id: 'resetLogoImage', name: 'Logo reset button' },
+        { id: 'coverFileInput', name: 'Cover file input' },
+        { id: 'coverPreviewImage', name: 'Cover preview image' },
+        { id: 'coverImage', name: 'Cover hidden input' },
+        { id: 'coverUploadContainer', name: 'Cover upload container' },
+        { id: 'coverProgressContainer', name: 'Cover progress container' },
+        { id: 'coverProgressBar', name: 'Cover progress bar' },
+        { id: 'coverUploadStatus', name: 'Cover upload status' },
+        { id: 'resetCoverImage', name: 'Cover reset button' }
+      ];
+      
+      let allElementsExist = true;
+      elementsToCheck.forEach(element => {
+        const el = document.getElementById(element.id);
+        if (!el) {
+          console.error(`Element not found: ${element.name} (${element.id})`);
+          allElementsExist = false;
+        } else {
+          console.log(`Element found: ${element.name} (${element.id})`);
+        }
+      });
+      
+      if (!allElementsExist) {
+        console.error('Some elements are missing, check HTML structure');
+        showAlert('danger', 'هناك مشكلة في تهيئة نظام رفع الصور. يرجى تحديث الصفحة أو الاتصال بالدعم الفني.');
+      }
+      
+      setupImageUpload(
+        'logoFileInput',
+        'logoPreviewImage',
+        'logoImage',
+        'logoUploadContainer',
+        'logoProgressContainer',
+        'logoProgressBar',
+        'logoUploadStatus',
+        '/assetsLanding/img/logoMomke.png'
+      );
+      
+      setupImageUpload(
+        'coverFileInput',
+        'coverPreviewImage',
+        'coverImage',
+        'coverUploadContainer',
+        'coverProgressContainer',
+        'coverProgressBar',
+        'coverUploadStatus',
+        '/assetsLanding/img/in-front.jpg'
+      );
+    });
+  </script>
+</body>
+
+</html>

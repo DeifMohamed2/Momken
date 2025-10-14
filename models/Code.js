@@ -9,6 +9,12 @@ const CodeSchema = new Schema({
         uppercase: true,
         trim: true
     },
+    // Teacher reference for multi-tenant functionality
+    teacherId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Teacher',
+        default: null
+    },
     codeType: {
         type: String,
         required: true,

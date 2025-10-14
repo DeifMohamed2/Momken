@@ -30,10 +30,86 @@
 
     <!-- Avoid unused links -->
     <!-- Removed the unused 'webfonts/' directory reference -->
+    
+    <!-- <style>
+      /* Custom styles for teacher pages */
+      .teacher-profile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      
+      .teacher-logo {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        margin-bottom: 15px;
+      }
+      
+      .teacher-brand {
+        font-size: 1.2rem;
+        margin-top: 5px;
+        color: #666;
+      }
+      
+      .teacher-about-logo {
+        width: 180px;
+        height: 180px;
+        border-radius: 10px;
+        object-fit: cover;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        margin-bottom: 20px;
+      }
+      
+      .teacher-social {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+      }
+      
+      .social-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f5f5f5;
+        color: #333;
+        font-size: 18px;
+        transition: all 0.3s ease;
+      }
+      
+      .social-icon:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      }
+      
+      .platform-logo {
+        width: 150px;
+        height: auto;
+        margin-bottom: 20px;
+      }
+      
+      /* Apply teacher's primary color to various elements if available */
+      .teacher-themed .section-line h1 span,
+      .teacher-themed .Landing-btn-book,
+      .teacher-themed .Landing-btn-book span {
+        background-color: var(--teacher-primary-color, #007bff) !important;
+      }
+      .teacher-themed .section-line::after {
+        background-color: var(--teacher-primary-color, #007bff) !important;
+      }
+    </style> -->
 
-    <title>Momken Academy</title>
+    <title><% if (typeof teacher !== 'undefined' && teacher) { %><%= teacher.name %> - <%= teacher.brandName %><% } else { %>Momken Academy<% } %></title>
   </head>
-  <body>
+  <body<% if (typeof teacher !== 'undefined' && teacher) { %> class="teacher-themed"<% } %>>
     <!-- Start Header -->
     <header>
     <%- include("./partials/head.ejs") %>
@@ -43,18 +119,36 @@
     <div class="Landing-page">
       <div class="container">
         <div class="Landing-page_left">
-          <img src="assetsLanding/img/in-front.jpg" alt="" loading="lazy" />
+          <% if (typeof teacher !== 'undefined' && teacher) { %>
+            <img src="<%= teacher.coverImage %>" alt="<%= teacher.name %>" loading="lazy" />
+          <% } else { %>
+            <img src="assetsLanding/img/logoMomke.png" alt="" loading="lazy" />
+          <% } %>
         </div>
         <div class="Landing-page_right">
-          <h2>منصة <span class="largefont">ممكن</span></h2>
+      
+              <h2>منصة <span class="largefont">ممكن</span></h2>
+        
+            <% if (typeof teacher !== 'undefined' && teacher) { %>
+                  <h2><span class="largefont" style="font-size: 3rem;"><%= teacher.name %></span></h2>
+          <% }  %>    
+      
           <p class="enhanced-text">
-            منصة متكاملة بها كل ما يحتاجه الطالب ليتفوق
+            <% if (typeof teacher !== 'undefined' && teacher && teacher.description) { %>
+              <%= teacher.description %>
+            <% } else { %>
+              منصة متكاملة بها كل ما يحتاجه الطالب ليتفوق
+            <% } %>
           </p>
           <div class="line-between"></div>
           <div class="Landing-btns">
             <!-- <button class="Landing-btn-enroll">اطلب الكتاب من هنا</button> -->
             <!-- <div class="line-btween"></div> -->
-            <a href="Register">
+            <% if (typeof isTeacherPage !== 'undefined' && isTeacherPage && typeof teacherSlug !== 'undefined') { %>
+              <a href="/<%= teacherSlug %>/Register">
+            <% } else { %>
+              <a href="/Register">
+            <% } %>
             <button class="Landing-btn-book">
               ابدأ رحلتك <span>الأن</span>
             </button>
@@ -70,7 +164,11 @@
       <section class="Intro" id="information">
         <div class="Section-title">
           <div class="section-line">
-            <h1>مع منصة <span>ممكن</span></h1>
+            <% if (typeof teacher !== 'undefined' && teacher) { %>
+              <h1>مع <span><%= teacher.name %></span></h1>
+            <% } else { %>
+              <h1>مع منصة <span>ممكن</span></h1>
+            <% } %>
           </div>
         </div>
         <div class="container">
@@ -137,26 +235,50 @@
       <section class="about-teacher">
         <div class="Section-title">
           <div class="section-line">
-            <h1>اتعرف <span>علينا</span></h1>
+            <% if (typeof teacher !== 'undefined' && teacher) { %>
+              <h1>نبذة عن <span><%= teacher.name %></span></h1>
+            <% } else { %>
+              <h1>اتعرف <span>علينا</span></h1>
+            <% } %>
           </div>
         </div>
         <div class="container">
           <div class="about-teacher-left">
-                  <!-- <img
-                    src="assetsLanding/img/logoMomke.png"
-                    loading="lazy"
-                    alt="فريق منصة ممكن"
-                  /> -->
+            <% if (typeof teacher !== 'undefined' && teacher) { %>
+              <img
+                src="<%= teacher.logoImage %>"
+                loading="lazy"
+                alt="<%= teacher.name %>"
+                class="teacher-about-logo"
+              />
+              <% if (teacher.social && teacher.social.facebook) { %>
+              <div class="teacher-social">
+                <a href="<%= teacher.social.facebook %>" target="_blank" class="social-icon"><i class="fab fa-facebook"></i></a>
+              </div>
+              <% } %>
+            <% } else { %>
+              <img
+                src="assetsLanding/img/logoMomke.png"
+                loading="lazy"
+                alt="فريق منصة ممكن"
+                class="platform-logo"
+              />
+            <% } %>
           </div>
           <div class="about-teacher-right">
-            <h1>نحن فريق منصة ممكن التعليمية</h1>
-            <p>
-              هل تريد إتقان اللغة العربية بطريقة ممتعة وفعّالة؟ انضم إلينا في
-              منصة ممكن التعليمية! نقدم لك تجربة تعليمية فريدة، حيث المعرفة
-              تلتقي بالإبداع. مع فريق متميز من المعلمين المختصين، نساعدك على
-              استيعاب قواعد اللغة العربية بسهولة، وتطوير مهاراتك في القراءة
-              والكتابة والنطق.
-            </p>
+            <% if (typeof teacher !== 'undefined' && teacher) { %>
+              <h1><%= teacher.brandName %></h1>
+              <p><%= teacher.description || 'انضم إلينا في رحلة تعليمية مميزة مع أفضل المعلمين المتخصصين.' %></p>
+            <% } else { %>
+              <h1>نحن فريق منصة ممكن التعليمية</h1>
+              <p>
+                هل تريد إتقان اللغة العربية بطريقة ممتعة وفعّالة؟ انضم إلينا في
+                منصة ممكن التعليمية! نقدم لك تجربة تعليمية فريدة، حيث المعرفة
+                تلتقي بالإبداع. مع فريق متميز من المعلمين المختصين، نساعدك على
+                استيعاب قواعد اللغة العربية بسهولة، وتطوير مهاراتك في القراءة
+                والكتابة والنطق.
+              </p>
+            <% } %>
           </div>
         </div>
       </section>

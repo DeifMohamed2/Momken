@@ -246,6 +246,17 @@ const userSchema = new Schema({
         enum: ['AR', 'EN'],
         default: 'AR'
     },
+    // Teacher reference for students
+    teacherId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Teacher',
+        default: null
+    },
+    // For teacher users, indicates if they are an admin
+    isAdmin: {
+        type: Boolean,
+        default: false
+    },
 
     // Enhanced purchase tracking
     chaptersPurchased: [ChapterPurchaseSchema],

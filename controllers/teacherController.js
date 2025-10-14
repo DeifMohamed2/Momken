@@ -19,14 +19,39 @@ const { v4: uuidv4 } = require('uuid');
 // ==================  Dashboard  ====================== //
 
 const dash_get = async (req, res) => {
-  // Update all users' video allowed attempts to 10
-  const updateResult = await User.updateMany(
-    { isTeacher: false }, // Target only student accounts
-    { $set: { "videosInfo.$[].videoAllowedAttemps": 10 } }
-  );
+  // Get teacher ID for filtering
+  const teacherId = req.teacherProfile ? req.teacherProfile._id : null;
   
-  console.log(`Updated video attempts for ${updateResult.modifiedCount} users`);
   try {
+    // Update all users' video allowed attempts to 10 (only for this teacher's students if teacherId exists)
+    const updateQuery = { isTeacher: false };
+    if (teacherId) {
+      updateQuery.teacherId = teacherId;
+    }
+    
+    const updateResult = await User.updateMany(
+      updateQuery,
+      { $set: { "videosInfo.$[].videoAllowedAttemps": 10 } }
+    );
+    
+    console.log(`Updated video attempts for ${updateResult.modifiedCount} users`);
+    
+    // Build base queries with teacher filtering
+    const studentQuery = { isTeacher: false };
+    const chapterQuery = { isActive: true };
+    const quizQuery = { isQuizActive: true };
+    const pdfQuery = {};
+    const codeQuery = {};
+    
+    // Add teacher filtering if teacher ID exists
+    if (teacherId) {
+      studentQuery.teacherId = teacherId;
+      chapterQuery.teacherId = teacherId;
+      quizQuery.teacherId = teacherId;
+      pdfQuery.teacherId = teacherId;
+      codeQuery.teacherId = teacherId;
+    }
+    
     // Use Promise.all for parallel execution and optimize queries
     const [
       studentStats,
@@ -36,12 +61,11 @@ const dash_get = async (req, res) => {
       videoStats,
       recentStudents,
       gradeStats,
-      topPerformers,
-      codeStats
+      topPerformers
     ] = await Promise.all([
       // Get student statistics in one query
       User.aggregate([
-        { $match: { isTeacher: false } },
+        { $match: studentQuery },
         {
           $group: {
             _id: null,
@@ -53,13 +77,13 @@ const dash_get = async (req, res) => {
       ]),
       
       // Basic counts
-      Chapter.countDocuments({ isActive: true }),
-      Quiz.countDocuments({ isQuizActive: true }),
-      PDFs.countDocuments({}),
+      Chapter.countDocuments(chapterQuery),
+      Quiz.countDocuments(quizQuery),
+      PDFs.countDocuments(pdfQuery),
       
       // Get video count efficiently
       Chapter.aggregate([
-        { $match: { isActive: true } },
+        { $match: chapterQuery },
         {
           $project: {
             totalVideos: {
@@ -75,7 +99,7 @@ const dash_get = async (req, res) => {
       ]),
       
       // Recent students
-      User.find({ isTeacher: false })
+      User.find(studentQuery)
         .sort({ createdAt: -1 })
         .limit(5)
         .select('Username Code Grade createdAt subscribe')
@@ -83,13 +107,13 @@ const dash_get = async (req, res) => {
       
       // Grade distribution
       User.aggregate([
-        { $match: { isTeacher: false } },
+        { $match: studentQuery },
         { $group: { _id: '$Grade', count: { $sum: 1 } } }
       ]),
       
       // Top performers
       User.find({ 
-        isTeacher: false, 
+        ...studentQuery,
         totalScore: { $gt: 0 } 
       })
       .sort({ totalScore: -1 })
@@ -98,34 +122,31 @@ const dash_get = async (req, res) => {
       .lean(),
       
       // Code statistics
-      Code.aggregate([
-        {
-          $group: {
-            _id: null,
-            totalCodes: { $sum: 1 },
-            usedCodes: { $sum: { $cond: [{ $eq: ['$isUsed', true] }, 1, 0] } }
-          }
-        }
-      ])
     ]);
 
     // Extract results
     const stats = studentStats[0] || { totalStudents: 0, activeStudents: 0, pendingStudents: 0 };
     const totalVideos = videoStats[0]?.totalVideos || 0;
-    const codes = codeStats[0] || { totalCodes: 0, usedCodes: 0 };
-    const activeCodes = codes.totalCodes - codes.usedCodes;
     
     // Simple monthly stats (last 3 months only for performance)
     const threeMonthsAgo = new Date();
     threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
     
-    const monthlyStats = await User.aggregate([
-          {
-            $match: {
+    const monthlyStatsQuery = [
+      {
+        $match: {
           isTeacher: false, 
-          createdAt: { $gte: threeMonthsAgo } 
+          createdAt: { $gte: threeMonthsAgo }
         } 
-      },
+      }
+    ];
+    
+    // Add teacher filtering if teacher ID exists
+    if (teacherId) {
+      monthlyStatsQuery[0].$match.teacherId = teacherId;
+    }
+    
+    monthlyStatsQuery.push(
       {
         $group: {
           _id: {
@@ -137,12 +158,15 @@ const dash_get = async (req, res) => {
       },
       { $sort: { '_id.year': 1, '_id.month': 1 } },
       { $limit: 6 } // Limit results
-    ]);
+    );
+    
+    const monthlyStats = await User.aggregate(monthlyStatsQuery);
     
     res.render('teacher/dash', {
       title: 'لوحة التحكم',
-              path: req.path,
+      path: req.path,
       teacherData: req.userData || req.teacherData,
+      teacherProfile: req.teacherProfile,
       stats: {
         totalStudents: stats.totalStudents,
         activeStudents: stats.activeStudents,
@@ -150,10 +174,7 @@ const dash_get = async (req, res) => {
         totalChapters,
         totalVideos,
         totalQuizzes,
-        totalPDFs,
-        totalCodes: codes.totalCodes,
-        usedCodes: codes.usedCodes,
-        activeCodes
+        totalPDFs
       },
       recentStudents: recentStudents || [],
       gradeStats: gradeStats || [],
@@ -161,7 +182,7 @@ const dash_get = async (req, res) => {
       monthlyStats: monthlyStats || [],
       success: req.query.success,
       error: req.query.error
-      });
+    });
   } catch (error) {
     console.error('Dashboard error:', error);
     res.status(500).send('Internal Server Error');
@@ -174,11 +195,17 @@ const chapters_get = async (req, res) => {
   try {
     const { grade, search, page = 1 } = req.query;
     const perPage = 12;
+    const teacherId = req.teacherProfile ? req.teacherProfile._id : null;
     
     let query = {};
     if (grade) query.chapterGrade = grade;
     if (search) {
       query.chapterName = { $regex: search, $options: 'i' };
+    }
+    
+    // Add teacher filtering if teacher ID exists
+    if (teacherId) {
+      query.teacherId = teacherId;
     }
     
     const chapters = await Chapter.find(query)
@@ -255,6 +282,8 @@ const chapter_create_post = async (req, res) => {
       return res.redirect('/teacher/chapters/create?error=missing_fields');
     }
     
+    const teacherId = req.teacherProfile ? req.teacherProfile._id : null;
+    
     const chapter = new Chapter({
       chapterName,
       chapterGrade,
@@ -267,6 +296,7 @@ const chapter_create_post = async (req, res) => {
       chapterSummaries: [],
       chapterSolvings: [],
       isActive: true,
+      teacherId: teacherId, // Add teacher reference
       createdAt: new Date(),
       updatedAt: new Date()
     });
@@ -1051,12 +1081,18 @@ const quizzes_get = async (req, res) => {
   try {
     const { grade, chapter, search, page = 1 } = req.query;
     const perPage = 10;
+    const teacherId = req.teacherProfile ? req.teacherProfile._id : null;
     
     let query = {};
     if (grade) query.Grade = grade;
     if (chapter) query.chapterId = chapter;
     if (search) {
       query.quizName = { $regex: search, $options: 'i' };
+    }
+    
+    // Add teacher filtering if teacher ID exists
+    if (teacherId) {
+      query.teacherId = teacherId;
     }
     
     const quizzes = await Quiz.find(query)
@@ -1066,8 +1102,12 @@ const quizzes_get = async (req, res) => {
     
     const totalQuizzes = await Quiz.countDocuments(query);
     
-    // Get chapters for filter
-    const chapters = await Chapter.find({ isActive: true }, 'chapterName chapterGrade');
+    // Get chapters for filter (filtered by teacher if applicable)
+    const chapterQuery = { isActive: true };
+    if (teacherId) {
+      chapterQuery.teacherId = teacherId;
+    }
+    const chapters = await Chapter.find(chapterQuery, 'chapterName chapterGrade');
     
     // Add statistics to each quiz
     const quizzesWithStats = await Promise.all(
@@ -1241,6 +1281,9 @@ const quiz_create_post = async (req, res) => {
       return res.redirect('/teacher/quizzes/create?error=too_many_questions_to_show');
     }
     
+    // Get teacher ID for the quiz
+    const teacherId = req.teacherProfile ? req.teacherProfile._id : null;
+    
     const quiz = new Quiz({
       quizName,
       Grade,
@@ -1255,6 +1298,7 @@ const quiz_create_post = async (req, res) => {
       showAnswersAfterQuiz: showAnswersAfterQuiz === 'true',
       Questions: parsedQuestions,
       videoWillbeOpen: videoWillbeOpen || null,
+      teacherId: teacherId, // Add teacher reference
       createdAt: new Date(),
       updatedAt: new Date()
     });
@@ -1274,8 +1318,16 @@ const quiz_create_post = async (req, res) => {
       quizPurchaseStatus: !quiz.prepaidStatus
     };
     
+    // Build query for updating users
+    const updateQuery = { isTeacher: false, Grade: Grade };
+    
+    // Add teacher filtering if teacher ID exists
+    if (teacherId) {
+      updateQuery.teacherId = teacherId;
+    }
+    
     await User.updateMany(
-      { isTeacher: false, Grade: Grade },
+      updateQuery,
       { $push: { quizesInfo: quizInfo } }
     );
     
@@ -1300,6 +1352,7 @@ const students_get = async (req, res) => {
   try {
     const { grade, status, search, page = 1 } = req.query;
     const perPage = 20;
+    const teacherId = req.teacherProfile ? req.teacherProfile._id : null;
     
     let query = { isTeacher: false };
     if (grade) query.Grade = grade;
@@ -1310,6 +1363,11 @@ const students_get = async (req, res) => {
         { Username: { $regex: search, $options: 'i' } },
         { Code: isNaN(search) ? undefined : parseInt(search) }
       ].filter(Boolean);
+    }
+    
+    // Add teacher filtering if teacher ID exists
+    if (teacherId) {
+      query.teacherId = teacherId;
     }
     
     const students = await User.find(query)
@@ -1345,6 +1403,7 @@ const student_requests_get = async (req, res) => {
   try {
     const { grade, search, page = 1 } = req.query;
     const perPage = 20;
+    const teacherId = req.teacherProfile ? req.teacherProfile._id : null;
     
     let query = { isTeacher: false, subscribe: false };
     if (grade) query.Grade = grade;
@@ -1353,6 +1412,11 @@ const student_requests_get = async (req, res) => {
         { Username: { $regex: search, $options: 'i' } },
         { Code: isNaN(search) ? undefined : parseInt(search) }
       ].filter(Boolean);
+    }
+    
+    // Add teacher filtering if teacher ID exists
+    if (teacherId) {
+      query.teacherId = teacherId;
     }
     
     const students = await User.find(query)
@@ -1632,9 +1696,15 @@ const codes_get = async (req, res) => {
   try {
     const { search, type, status, grade, page = 1 } = req.query;
     const perPage = 20;
+    const teacherId = req.teacherProfile ? req.teacherProfile._id : null;
     
     // Build query
     let query = {};
+    
+    // Add teacher filtering if teacher ID exists
+    if (teacherId) {
+      query.teacherId = teacherId;
+    }
     
     if (search) {
       // Check if search is a number (for usedBy field)
@@ -1734,11 +1804,22 @@ const codes_get = async (req, res) => {
 
 const codes_create_get = async (req, res) => {
   try {
+    const teacherId = req.teacherProfile ? req.teacherProfile._id : null;
+    
+    // Build queries with teacher filtering
+    const chapterQuery = { isActive: true };
+    const quizQuery = { isQuizActive: true };
+    
+    if (teacherId) {
+      chapterQuery.teacherId = teacherId;
+      quizQuery.teacherId = teacherId;
+    }
+    
     // Get chapters for code generation
-    const chapters = await Chapter.find({ isActive: true }).select('chapterName chapterGrade');
+    const chapters = await Chapter.find(chapterQuery).select('chapterName chapterGrade');
     
     // Get quizzes for code generation
-    const quizzes = await Quiz.find({ isQuizActive: true }).select('quizName Grade');
+    const quizzes = await Quiz.find(quizQuery).select('quizName Grade');
     
     res.render('teacher/codes-create', {
       title: 'إنشاء أكواد',
@@ -1829,6 +1910,9 @@ const codes_create_post = async (req, res) => {
         }
       }
 
+      // Get teacher ID for the code
+      const teacherId = req.teacherProfile ? req.teacherProfile._id : null;
+      
       // Create code object
       const codeObj = {
         Code: code,
@@ -1840,6 +1924,7 @@ const codes_create_post = async (req, res) => {
         contentId: contentId || null,
         contentName: contentName,
         chapterName: chapterName,
+        teacherId: teacherId, // Add teacher reference
         usedBy: null,
         createdAt: new Date()
       };

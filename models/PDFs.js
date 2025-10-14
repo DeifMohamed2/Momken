@@ -4,12 +4,16 @@ const Schema = mongoose.Schema
 
 
 const pdfSchema = new Schema({
-
     pdfName: {
         type: String, 
         required: true, 
     },
-
+    // Teacher reference for multi-tenant functionality
+    teacherId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Teacher',
+        default: null
+    },
     pdfLink:{
         type:String,
         required: true,

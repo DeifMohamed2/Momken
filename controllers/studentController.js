@@ -19,29 +19,50 @@ const { v4: uuidv4 } = require('uuid');
 const dash_get = async (req, res) => {
   try {
     const userGrade = req.userData.Grade;
+    const teacherId = req.userData.teacherId;
     
     // Get user's chapters with proper filtering
-    const userChapters = await Chapter.find({
+    const chapterQuery = {
       chapterGrade: userGrade,
-      // ARorEN: req.userData.ARorEN,
       isActive: true
-    }).select('chapterName _id');
+    };
+    
+    // Add teacher filtering if student has a teacher assigned
+    if (teacherId) {
+      chapterQuery.teacherId = teacherId;
+    }
+    
+    const userChapters = await Chapter.find(chapterQuery).select('chapterName _id');
 
-    // Get user's quizzes
-    const userQuizzes = await Quiz.find({
+    // Get user's quizzes with teacher filtering
+    const quizQuery = {
       Grade: userGrade,
       isQuizActive: true
-    }).select('quizName _id');
+    };
+    
+    // Add teacher filtering if student has a teacher assigned
+    if (teacherId) {
+      quizQuery.teacherId = teacherId;
+    }
+    
+    const userQuizzes = await Quiz.find(quizQuery).select('quizName _id');
 
-    // Get top ranked users for the podium
-    const rankedUsers = await User.find({
+    // Get top ranked users for the podium with teacher filtering
+    const userRankQuery = {
       Grade: userGrade,
       isTeacher: false,
       totalScore: { $gt: 0 }
-    })
-    .sort({ totalScore: -1 })
-    .limit(10)
-    .select('Username totalScore totalQuestions');
+    };
+    
+    // Add teacher filtering if student has a teacher assigned
+    if (teacherId) {
+      userRankQuery.teacherId = teacherId;
+    }
+    
+    const rankedUsers = await User.find(userRankQuery)
+      .sort({ totalScore: -1 })
+      .limit(10)
+      .select('Username totalScore totalQuestions');
 
     // Calculate user statistics
     const totalVideosWatched = req.userData.videosInfo ? 
@@ -94,6 +115,7 @@ const dash_get = async (req, res) => {
       title: 'Dashboard',
       path: req.path,
       userData: req.userData,
+      teacherProfile: req.teacherProfile,
       stats: {
         totalVideosWatched,
         totalQuizzesTaken,
@@ -118,12 +140,20 @@ const dash_get = async (req, res) => {
 
 const chapters_get = async (req, res) => {
   try {
-    const chapters = await Chapter.find({
+    // Build query with teacher filtering
+    const query = {
       chapterGrade: req.userData.Grade,
-      // ARorEN: req.userData.ARorEN,
-      isActive: true
-    }).sort({ createdAt: 1 });
-    console.log('chapters', chapters,req.userData.Grade);
+    };
+    
+    // Add teacher filtering if student has a teacher assigned
+    if (req.userData.teacherId) {
+      query.teacherId = req.userData.teacherId;
+    }
+    
+    const chapters = await Chapter.find(query).sort({ createdAt: 1 });
+    console.log('query', query);
+    console.log('chapters', chapters, req.userData.Grade, req.userData.teacherId);
+    
     const paidChapters = chapters.map((chapter) => {
       const isPaid = req.userData.hasChapterAccess(chapter._id);
       
@@ -149,6 +179,7 @@ const chapters_get = async (req, res) => {
       path: req.path,
       chapters: paidChapters,
       userData: req.userData,
+      teacherProfile: req.teacherProfile,
       error: req.query.error
     });
   } catch (error) {
@@ -628,20 +659,32 @@ const ranking_get = async (req, res) => {
 // ================== Exams  ====================== //
 const exams_get = async (req, res) => {
   try {
-    // Get the top 3 ranked users by total score
+    // Get the top 3 ranked users by total score (filtered by teacher if assigned)
+    const userQuery = { Grade: req.userData.Grade };
+    if (req.userData.teacherId) {
+      userQuery.teacherId = req.userData.teacherId;
+    }
+    
     const rankedUsers = await User.find(
-      { Grade: req.userData.Grade },
+      userQuery,
       { Username: 1, userPhoto: 1 }
     )
       .sort({ totalScore: -1 })
       .limit(3);
 
-    // Get all active and visible exams for the user's grade
-    const exams = await Quiz.find({ 
+    // Get all active and visible exams for the user's grade (filtered by teacher if assigned)
+    const quizQuery = { 
       Grade: req.userData.Grade,
       isQuizActive: true, // Only show active quizzes
       permissionToShow: true // Only show quizzes that are set to be visible
-    }).sort({
+    };
+    
+    // Add teacher filtering if student has a teacher assigned
+    if (req.userData.teacherId) {
+      quizQuery.teacherId = req.userData.teacherId;
+    }
+    
+    const exams = await Quiz.find(quizQuery).sort({
       createdAt: 1,
     });
 
@@ -693,6 +736,7 @@ const exams_get = async (req, res) => {
       title: 'Exams',
       path: req.path,
       userData: req.userData,
+      teacherProfile: req.teacherProfile,
       rankedUsers,
       exams: paidExams,
     });
@@ -1645,14 +1689,29 @@ const settings_post = async (req, res) => {
 
 const PDFs_get = async (req, res) => {
   try {
-    const PDFdata = await PDFs.find({ "pdfGrade": req.userData.Grade }).sort({ createdAt: 1 })
+    // Build query with teacher filtering
+    const query = { pdfGrade: req.userData.Grade };
+    
+    // Add teacher filtering if student has a teacher assigned
+    if (req.userData.teacherId) {
+      query.teacherId = req.userData.teacherId;
+    }
+    
+    const PDFdata = await PDFs.find(query).sort({ createdAt: 1 });
     console.log(PDFdata);
 
     const PaidPDFs = PDFdata.map(PDF => {
       const isPaid = req.userData.videosPaid.includes(PDF._id);
       return { ...PDF.toObject(), isPaid };
     });
-    res.render("student/PDFs", { title: "PDFs", path: req.path, PDFs: PaidPDFs, userData: req.userData });
+    
+    res.render("student/PDFs", { 
+      title: "PDFs", 
+      path: req.path, 
+      PDFs: PaidPDFs, 
+      userData: req.userData,
+      teacherProfile: req.teacherProfile
+    });
 
   } catch (error) {
     res.send(error.message);
@@ -1873,17 +1932,33 @@ const chapter_content_get = async (req, res) => {
       return res.redirect('/student/chapters?error=grade_mismatch');
     }
 
-    // Get all quizzes for this chapter
-    const quizzes = await Quiz.find({ 
+    // Build query for quizzes
+    const quizQuery = { 
       chapterId: chapterId,
       Grade: req.userData.Grade 
-    });
+    };
+    
+    // Add teacher filtering if student has a teacher assigned
+    if (req.userData.teacherId) {
+      quizQuery.teacherId = req.userData.teacherId;
+    }
+    
+    // Get all quizzes for this chapter
+    const quizzes = await Quiz.find(quizQuery);
 
-    // Get all PDFs for this chapter
-    const chapterPDFs = await PDFs.find({ 
+    // Build query for PDFs
+    const pdfQuery = { 
       chapterId: chapterId,
       pdfGrade: req.userData.Grade 
-    });
+    };
+    
+    // Add teacher filtering if student has a teacher assigned
+    if (req.userData.teacherId) {
+      pdfQuery.teacherId = req.userData.teacherId;
+    }
+    
+    // Get all PDFs for this chapter
+    const chapterPDFs = await PDFs.find(pdfQuery);
 
     // Check user access to chapter and content
     const hasChapterAccess = req.userData.hasChapterAccess(chapterId);
@@ -2113,12 +2188,20 @@ const chapter_quizzes_get = async (req, res) => {
       return res.status(404).send('Chapter not found');
     }
 
-    const quizzes = await Quiz.find({ 
+    // Build query for quizzes
+    const quizQuery = { 
       chapterId: chapterId,
       Grade: req.userData.Grade,
       isQuizActive: true, // Only show active quizzes
       permissionToShow: true // Only show quizzes that are set to be visible
-    });
+    };
+    
+    // Add teacher filtering if student has a teacher assigned
+    if (req.userData.teacherId) {
+      quizQuery.teacherId = req.userData.teacherId;
+    }
+    
+    const quizzes = await Quiz.find(quizQuery);
 
     const hasChapterAccess = req.userData.chaptersPaid && req.userData.chaptersPaid.includes(chapterId);
     
@@ -2148,11 +2231,19 @@ const chapter_pdfs_get = async (req, res) => {
       return res.status(404).send('Chapter not found');
     }
 
-    // Get PDFs related to this chapter
-    const pdfs = await PDFs.find({ 
+    // Build query for PDFs
+    const pdfQuery = { 
       chapterId: chapterId,
       pdfGrade: req.userData.Grade 
-    });
+    };
+    
+    // Add teacher filtering if student has a teacher assigned
+    if (req.userData.teacherId) {
+      pdfQuery.teacherId = req.userData.teacherId;
+    }
+    
+    // Get PDFs related to this chapter
+    const pdfs = await PDFs.find(pdfQuery);
 
     const hasChapterAccess = req.userData.chaptersPaid && req.userData.chaptersPaid.includes(chapterId);
     

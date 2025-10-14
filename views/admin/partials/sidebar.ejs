@@ -1,0 +1,112 @@
+<!-- Sidebar -->
+<nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+  <div class="position-sticky pt-3">
+    <div class="sidebar-header text-center mb-4">
+      <h4 class="text-white mb-0">لوحة الإدارة</h4>
+      <small class="text-muted">Admin Panel</small>
+    </div>
+    
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'dash' ? 'active' : '' %>" href="/admin/dash">
+          <i class="bi bi-speedometer2 me-2"></i>
+          لوحة التحكم
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'teachers' ? 'active' : '' %>" href="/admin/teachers">
+          <i class="bi bi-person-badge me-2"></i>
+          المعلمين
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'teacher-create' ? 'active' : '' %>" href="/admin/teachers/create">
+          <i class="bi bi-person-plus me-2"></i>
+          إضافة معلم
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'codes' ? 'active' : '' %>" href="/admin/codes">
+          <i class="bi bi-key me-2"></i>
+          إدارة الأكواد
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'codes-create' ? 'active' : '' %>" href="/admin/codes/create">
+          <i class="bi bi-plus-circle me-2"></i>
+          إنشاء أكواد
+        </a>
+      </li>
+    </ul>
+    
+    <div class="sidebar-footer mt-auto pt-3">
+      <div class="text-center">
+        <a href="/admin/logout" class="btn btn-sm btn-outline-light w-100">
+          <i class="bi bi-box-arrow-right me-2"></i>
+          تسجيل الخروج
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<style>
+  .sidebar {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar .nav-link {
+    color: #cbd5e1;
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .sidebar .nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    transform: translateX(-5px);
+  }
+  
+  .sidebar .nav-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  }
+  
+  .sidebar .nav-link i {
+    width: 20px;
+    text-align: center;
+  }
+  
+  .sidebar-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .sidebar-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      z-index: 1000;
+      transition: left 0.3s ease;
+    }
+    
+    .sidebar.show {
+      left: 0;
+    }
+  }
+</style>
+

@@ -21,6 +21,7 @@ const { v4: uuidv4 } = require('uuid')
 const homeRoutes = require('./routes/homeRoutes')
 const teacherRoutes = require('./routes/teacherRoutes')
 const studentRoutes = require('./routes/studentRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 // express app
 const app = express();
 
@@ -89,6 +90,7 @@ app.use(session({
 app.use('/', homeRoutes)
 app.use('/teacher', teacherRoutes)
 app.use('/student', studentRoutes)
+app.use('/admin', adminRoutes)
 
 
 

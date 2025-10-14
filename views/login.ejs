@@ -165,7 +165,7 @@
           <p>
             ادخل علي حسابك بإدخال رقم الهاتف و كلمة المرور المسجل بهم من قبل
           </p>
-          <form action="/login" method="post" >
+          <form action="/login" method="POST" id="loginForm">
             <div class="input-container">
               <div class="inputs-form phone-number">
                 <input type="text" id="phone" name="phone" required />
@@ -197,6 +197,11 @@
             <% } %>
           
             <button type="submit" class="Landing-btn-book" style="margin-top: 20px ;">تسجيل الدخول</button>
+            
+            <!-- System automatically detects if user is student, teacher or admin -->
+            <div style="text-align: center; margin-top: 10px; font-size: 0.9em; color: #666;">
+              النظام سيحدد تلقائياً نوع الحساب (طالب/معلم/مدير)
+            </div>
             
           </form>
           <!-- <p class="password-forget">

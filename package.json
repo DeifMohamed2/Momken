@@ -5,6 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
+    "seed-admin": "node seedAdmin.js",
     "seed-teacher": "node teacherSeedData.js",
     "seed-data": "node seedData.js",
     "seed-quizzes": "node quizSeedData.js",

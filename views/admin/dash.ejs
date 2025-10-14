@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/bootstrap.rtl.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <%- include('./partials/sidebar', { currentPage: 'dash' }) %>
+
+      <!-- Main content -->
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">لوحة التحكم - الإدارة</h1>
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+              <a href="/admin/teachers/create" class="btn btn-sm btn-outline-primary">إضافة معلم جديد</a>
+              <a href="/admin/codes/create" class="btn btn-sm btn-outline-success">إنشاء أكواد</a>
+            </div>
+          </div>
+        </div>
+
+        <% if (success) { %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% } %>
+
+        <% if (error) { %>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% } %>
+
+        <!-- Stats cards -->
+        <div class="row">
+          <div class="col-md-4 mb-4">
+            <div class="card text-white bg-primary">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h5 class="card-title">المعلمين</h5>
+                    <h2 class="display-4"><%= stats.totalTeachers %></h2>
+                  </div>
+                  <i class="bi bi-person-badge display-4"></i>
+                </div>
+                <p class="card-text">
+                  <span class="text-white">نشطين: <%= stats.activeTeachers %></span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <div class="card text-white bg-success">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h5 class="card-title">الطلاب</h5>
+                    <h2 class="display-4"><%= stats.totalStudents %></h2>
+                  </div>
+                  <i class="bi bi-people display-4"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent teachers -->
+        <h3>آخر المعلمين المضافين</h3>
+        <div class="table-responsive">
+          <table class="table table-striped table-sm">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>الاسم</th>
+                <th>اسم العلامة التجارية</th>
+                <th>الرابط</th>
+                <th>الحالة</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% recentTeachers.forEach((teacher, index) => { %>
+                <tr>
+                  <td><%= index + 1 %></td>
+                  <td><%= teacher.name %></td>
+                  <td><%= teacher.brandName %></td>
+                  <td><a href="/<%= teacher.slug %>" target="_blank">/<%= teacher.slug %></a></td>
+                  <td>
+                    <% if (teacher.isActive) { %>
+                      <span class="badge bg-success">نشط</span>
+                    <% } else { %>
+                      <span class="badge bg-danger">غير نشط</span>
+                    <% } %>
+                    <% if (teacher.isDefault) { %>
+                      <span class="badge bg-primary">افتراضي</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <a href="/admin/teachers/<%= teacher._id %>/edit" class="btn btn-sm btn-outline-primary">تعديل</a>
+                    <a href="/admin/teachers/<%= teacher._id %>/students" class="btn btn-sm btn-outline-info">الطلاب</a>
+                  </td>
+                </tr>
+              <% }); %>
+              <% if (recentTeachers.length === 0) { %>
+                <tr>
+                  <td colspan="6" class="text-center">لا يوجد معلمين مضافين بعد</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="text-center mt-3">
+          <a href="/admin/teachers" class="btn btn-primary">عرض كل المعلمين</a>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+
+</html>

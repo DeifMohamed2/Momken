@@ -21,6 +21,12 @@ const quizSchema = new Schema({
             return this.questionsCount; // Default to showing all questions
         }
     },
+    // Teacher reference for multi-tenant functionality
+    teacherId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Teacher',
+        default: null
+    },
     Questions: {
         type: Array,
         required: true, 

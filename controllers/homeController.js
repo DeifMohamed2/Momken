@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const Chapter = require('../models/Chapter');
+const Teacher = require('../models/Teacher');
+const Quiz = require('../models/Quiz');
 
 const waapi = require('@api/waapi');
 const bcrypt = require('bcrypt');
@@ -10,8 +12,49 @@ const waapiAPI = process.env.WAAPIAPI;
 waapi.auth(`${waapiAPI}`);
 
 const home_page = async (req, res) => {
-
-  res.render('index', { title: 'Home Page' });
+  try {
+    // Check if we're accessing a teacher-specific landing page
+    const teacherSlug = req.params.teacherSlug;
+    
+    if (teacherSlug) {
+      // Find teacher by slug
+      const teacher = await Teacher.findOne({ 
+        slug: teacherSlug,
+        isActive: true 
+      });
+      
+      console.log('Teacher lookup by slug:', teacherSlug, teacher ? 'found' : 'not found');
+      
+      if (!teacher) {
+        return res.status(404).send('Teacher not found');
+      }
+      
+      // Get teacher's landing page data
+      const landingPageData = teacher.getLandingPageData();
+      console.log('Landing page data:', landingPageData);
+      
+      // Render teacher-specific landing page
+      return res.render('index', {
+        title: `${teacher.brandName} - Home Page`,
+        teacher: landingPageData,
+        isTeacherPage: true,
+        teacherSlug
+      });
+    }
+    
+    // Find the default teacher if exists
+    const defaultTeacher = await Teacher.findOne({ isDefault: true });
+    
+    // Render main landing page
+    res.render('index', {
+      title: 'Momken Academy',
+      teacher: defaultTeacher ? defaultTeacher.getLandingPageData() : null,
+      isTeacherPage: false
+    });
+  } catch (error) {
+    console.error('Home page error:', error);
+    res.status(500).send('Internal Server Error');
+  }
 };
 
 const getChaptersByGrade = async (req, res) => {
@@ -46,9 +89,22 @@ const public_login_get = (req, res) => {
 const public_login_post = async (req, res) => {
   try {
     const { phone, password } = req.body;
+    
+    // Debug logging
+    console.log('Login attempt:', { 
+      phone, 
+      requestBody: req.body 
+    });
 
     const user = await User.findOne({ phone: phone});
-
+    console.log('User data:', user ? {
+      id: user._id,
+      username: user.Username,
+      isTeacher: user.isTeacher,
+      isAdmin: user.isAdmin,
+      phone: user.phone
+    } : 'No user found');
+    
     if (!user) {
       return res
         .status(401)
@@ -60,7 +116,17 @@ const public_login_post = async (req, res) => {
         });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.Password);
+    // Check if password matches either the hashed password or the plain text password (for backward compatibility)
+    let isPasswordValid = false;
+    try {
+      isPasswordValid = await bcrypt.compare(password, user.Password);
+    } catch (bcryptError) {
+      console.log('Bcrypt comparison error:', bcryptError);
+      // If bcrypt comparison fails, try direct comparison with unhashed password as fallback
+      isPasswordValid = (password === user.PasswordWithOutHash);
+    }
+    
+    console.log('Password validation result:', isPasswordValid);
 
     if (!isPasswordValid) {
       return res.status(401).render('login', {
@@ -74,9 +140,27 @@ const public_login_post = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, jwtSecret);
     res.cookie('token', token, { httpOnly: true });
 
-    if (user.isTeacher) {
+    // Update last login timestamp
+    await User.findByIdAndUpdate(user._id, { lastLogin: new Date() });
+
+    // Check if the user is an admin
+    console.log('Login successful for user:', { 
+      username: user.Username, 
+      isTeacher: Boolean(user.isTeacher), 
+      isAdmin: Boolean(user.isAdmin) 
+    });
+    
+    // Automatically redirect admin users to admin dashboard
+    if (user.isTeacher === true && user.isAdmin === true) {
+      console.log('Admin user detected, redirecting to /admin/dash');
+      return res.redirect('/admin/dash');
+    } else if (user.isTeacher === true) {
+      // Regular teacher goes to teacher dashboard
+      console.log('Teacher user detected, redirecting to /teacher/dash');
       return res.redirect('/teacher/dash');
     } else {
+      // Student goes to student dashboard
+      console.log('Student user detected, redirecting to /student/dash');
       return res.redirect('/student/dash');
       // if (user.subscribe) {
       // } else {
@@ -84,20 +168,44 @@ const public_login_post = async (req, res) => {
       // }
     }
   } catch (error) {
-    console.log(error);
-    return res.status(500).redirect('/login');
+    console.log('Login error:', error);
+    return res.status(500).render('login', {
+      title: 'Login Page',
+      Email: '',
+      Password: null,
+      error: 'حدث خطأ في النظام، يرجى المحاولة مرة أخرى',
+    });
   }
 };
 
-const public_Register_get = (req, res) => {
+const public_Register_get = async (req, res) => {
   const StudentCode = req.query.StudentCode;
-
-  res.render('Register', {
-    title: 'Login Page',
-    formData: req.body,
-    firebaseError: '',
-    StudentCode,
-  });
+  const teacherSlug = req.params.teacherSlug;
+  
+  try {
+    // Get all active teachers for the dropdown
+    const teachers = await Teacher.find({ isActive: true })
+      .select('_id name brandName slug');
+    
+    // If accessed through a teacher slug, pre-select that teacher
+    let selectedTeacher = null;
+    if (teacherSlug) {
+      selectedTeacher = await Teacher.findOne({ slug: teacherSlug });
+    }
+    
+    res.render('Register', {
+      title: 'Register Page',
+      formData: req.body,
+      firebaseError: '',
+      StudentCode,
+      teachers,
+      selectedTeacherId: selectedTeacher ? selectedTeacher._id : null,
+      teacherSlug
+    });
+  } catch (error) {
+    console.error('Register page error:', error);
+    res.status(500).send('Internal Server Error');
+  }
 };
 
 const public_Register_post = async (req, res) => {
@@ -112,9 +220,19 @@ const public_Register_post = async (req, res) => {
     gender,
     phone,
     parentPhone,
-  
-
+    teacherId
   } = req.body;
+  
+  // Get teacher slug for redirect if present
+  const teacherSlug = req.params.teacherSlug;
+  
+  // For debugging
+  console.log('Registration data:', { 
+    Username, 
+    Grade, 
+    teacherId, 
+    teacherSlug
+  });
 
   // Create an object to store validation errors
   const errors = {};
@@ -166,19 +284,46 @@ const public_Register_post = async (req, res) => {
   }
   if (!schoolName) {
     errors.schoolName = '- يجب ادخال اسم المدرسة';
-
+  }
+  
+  // Check if teacher is selected when not coming from a teacher-specific page
+  if (!teacherSlug && !teacherId) {
+    errors.teacherId = '- يجب اختيار المعلم';
   }
   console.log('req.body', req.body);
 
   console.log('errors', errors);
 
   if (Object.keys(errors).length > 0) {
-    return res.render('Register', {
-      title: 'Register Page',
-      errors: errors,
-      firebaseError: '',
-      formData: req.body, // Pass the form data back to pre-fill the form
-    });
+    try {
+      // Get all active teachers for the dropdown again
+      const teachers = await Teacher.find({ isActive: true })
+        .select('_id name brandName slug');
+      
+      // If accessed through a teacher slug, pre-select that teacher
+      let selectedTeacher = null;
+      if (teacherSlug) {
+        selectedTeacher = await Teacher.findOne({ slug: teacherSlug });
+      }
+      
+      return res.render('Register', {
+        title: 'Register Page',
+        errors: errors,
+        firebaseError: '',
+        formData: req.body, // Pass the form data back to pre-fill the form
+        teachers,
+        selectedTeacherId: selectedTeacher ? selectedTeacher._id : (teacherId || null),
+        teacherSlug
+      });
+    } catch (error) {
+      console.error('Error fetching teachers for form validation:', error);
+      return res.render('Register', {
+        title: 'Register Page',
+        errors: {...errors, server: 'حدث خطأ في النظام، يرجى المحاولة مرة أخرى'},
+        firebaseError: '',
+        formData: req.body
+      });
+    }
   }
 
 
@@ -188,42 +333,126 @@ const public_Register_post = async (req, res) => {
   let quizesInfo = [];
   let videosInfo = [];
 
-  if (Grade === 'Grade01') {
-    await User.findOne({ Code: 607444 }).then((result) => {
-      quizesInfo = result.quizesInfo;
-      videosInfo = result.videosInfo;
-    });
-  } else if (Grade === 'Grade02') {
-    await User.findOne({ Code: 868530 }).then((result) => {
-      quizesInfo = result.quizesInfo;
-      videosInfo = result.videosInfo;
-    });
-  } else if (Grade === 'Grade03') {
-    await User.findOne({ Code: 601889 }).then((result) => {
-      quizesInfo = result.quizesInfo;
-      videosInfo = result.videosInfo;
-    });
-  }
-  if (Grade === 'Grade1') {
-    await User.findOne({ Code: 980420 }).then((result) => {
-      quizesInfo = result.quizesInfo;
-      videosInfo = result.videosInfo;
-    });
-  } else if (Grade === 'Grade2') {
-    await User.findOne({ Code: 945207 }).then((result) => {
-      quizesInfo = result.quizesInfo;
-      videosInfo = result.videosInfo;
-    });
-  } else if (Grade === 'Grade3') {
-    await User.findOne({ Code: 907740 }).then((result) => {
-      quizesInfo = result.quizesInfo;
-      videosInfo = result.videosInfo;
-    });
+  try {
+    // Get all chapters and quizzes for the student's grade in parallel
+    const [chapters, quizzes] = await Promise.all([
+      Chapter.find({ chapterGrade: Grade ,teacherId: teacherId }).lean(),
+      Quiz.find({ Grade: Grade ,teacherId: teacherId }).lean()
+    ]);
+
+    // Initialize arrays
+    videosInfo = [];
+    quizesInfo = [];
+
+    // Process chapters to get all videos
+    for (const chapter of chapters) {
+      const allVideos = [
+        ...(chapter.chapterLectures || []),
+        ...(chapter.chapterSummaries || []),
+        ...(chapter.chapterSolvings || [])
+      ];
+      
+      for (const video of allVideos) {
+        if (video._id && (video.videoName || video.lectureName)) {
+          videosInfo.push({
+            _id: video._id,
+            videoName: video.videoName || video.lectureName,
+            chapterId: chapter._id,
+            videoType: video.videoType || 'lecture',
+            fristWatch: null,
+            lastWatch: null,
+            videoAllowedAttemps: 10,
+            numberOfWatches: 0,
+            videoPurchaseStatus: false,
+            purchaseDate: null,
+            purchaseCode: null,
+            isUserEnterQuiz: false,
+            isHWIsUploaded: false,
+            isUserUploadPerviousHWAndApproved: false,
+            prerequisites: video.prerequisites || 'none',
+            accessibleAfterViewing: null
+          });
+        }
+      }
+    }
+
+    // Process quizzes
+    for (const quiz of quizzes) {
+      if (quiz._id && quiz.quizName) {
+        quizesInfo.push({
+          _id: quiz._id,
+          quizName: quiz.quizName,
+          chapterId: quiz.chapterId,
+          isEnterd: false,
+          inProgress: false,
+          Score: 0,
+          answers: [],
+          randomQuestionIndices: [],
+          quizPurchaseStatus: false,
+          purchaseDate: null,
+          purchaseCode: null,
+          startTime: null,
+          endTime: null,
+          solvedAt: null
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error initializing student data:', error);
+    // Handle error appropriately
+    videosInfo = [];
+    quizesInfo = [];
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
+    // Validate teacher ID if provided
+    let validTeacherId = null;
+    let selectedTeacher = null;
+    
+    console.log('Teacher selection process - teacherId:', teacherId);
+    console.log('Teacher selection process - teacherSlug:', teacherSlug);
+    
+    // First try to use the provided teacherId from the form
+    if (teacherId) {
+      selectedTeacher = await Teacher.findById(teacherId);
+      if (selectedTeacher && selectedTeacher.isActive) {
+        validTeacherId = selectedTeacher._id;
+        console.log('Teacher selected from form input:', selectedTeacher.name);
+      }
+    }
+    
+    // If no valid teacher ID and we're on a teacher page, try to get that teacher
+    if (!validTeacherId && teacherSlug) {
+      selectedTeacher = await Teacher.findOne({ slug: teacherSlug, isActive: true });
+      if (selectedTeacher) {
+        validTeacherId = selectedTeacher._id;
+        console.log('Teacher selected from slug:', selectedTeacher.name);
+      }
+    }
+    
+    // If still no valid teacher, try to get default teacher
+    if (!validTeacherId) {
+      selectedTeacher = await Teacher.findOne({ isDefault: true, isActive: true });
+      if (selectedTeacher) {
+        validTeacherId = selectedTeacher._id;
+        console.log('Default teacher selected:', selectedTeacher.name);
+      } else {
+        // If no default teacher, get any active teacher
+        const anyTeacher = await Teacher.findOne({ isActive: true });
+        if (anyTeacher) {
+          validTeacherId = anyTeacher._id;
+          console.log('Fallback to any active teacher:', anyTeacher.name);
+        } else {
+          console.log('No active teachers found in the system');
+        }
+      }
+    }
+    
+    // Log the final selection
+    console.log('Final teacher selection:', validTeacherId);
+    
     const user = new User({
       Username: Username,
       Password: hashedPassword,
@@ -249,14 +478,18 @@ const public_Register_post = async (req, res) => {
       chaptersPaid: [],
       videosPaid: [],
       examsPaid: [],
+      teacherId: validTeacherId, // Add teacher reference
       // Add other fields as needed
     });
     user
       .save()
       .then((result) => {
-        res
-          .status(201)
-          .redirect('Register?StudentCode=' + encodeURIComponent(Code));
+        // If registration was from a teacher page, redirect back to that page
+        const redirectUrl = teacherSlug 
+          ? `/${teacherSlug}/Register?StudentCode=${encodeURIComponent(Code)}`
+          : `Register?StudentCode=${encodeURIComponent(Code)}`;
+        
+        res.status(201).redirect(redirectUrl);
       })
       .catch((error) => {
         if (error.name === 'MongoServerError' && error.code === 11000) {
@@ -438,8 +671,14 @@ const authenticateUser = async (req, res, next) => {
     //   return res.redirect('/login?StudentCode=' + user.Code);
     // }
 
+    // Get teacher profile if exists
+    let teacherProfile = null;
+    if (user.teacherId) {
+      teacherProfile = await Teacher.findById(user.teacherId);
+    }
   
     req.userData = user;
+    req.teacherProfile = teacherProfile; // Add teacher profile for filtering
     next();
   } catch (error) {
     console.error('Authentication error:', error);
@@ -449,10 +688,11 @@ const authenticateUser = async (req, res, next) => {
 
 const authenticateTeacher = async (req, res, next) => {
   try {
-    console.log('authenticateTeacher');
+    console.log('authenticateTeacher middleware called');
     const token = req.cookies.token;
     
     if (!token) {
+      console.log('No token found, redirecting to login');
       return res.redirect('/login');
     }
 
@@ -460,16 +700,33 @@ const authenticateTeacher = async (req, res, next) => {
     const user = await User.findById(decoded.userId);
     
     if (!user) {
+      console.log('No user found with token, redirecting to login');
       return res.redirect('/login');
     }
 
-    if (!user.isTeacher) {
+    console.log('Teacher authentication check:', {
+      username: user.Username,
+      isTeacher: typeof user.isTeacher,
+      isTeacherValue: user.isTeacher
+    });
+
+    if (user.isTeacher !== true) {
+      console.log('User is not a teacher, redirecting to login');
       res.clearCookie('token');
       return res.redirect('/login');
     }
 
+    // Get teacher profile if exists
+    let teacherProfile = null;
+    if (user.teacherId) {
+      teacherProfile = await Teacher.findById(user.teacherId);
+      console.log('Found teacher profile:', teacherProfile ? teacherProfile.name : 'No profile found');
+    }
+
     req.userData = user;
     req.teacherData = user; // Additional reference for teacher
+    req.teacherProfile = teacherProfile; // Add teacher profile for filtering
+    console.log('Teacher authentication successful');
     next();
   } catch (error) {
     console.error('Teacher authentication error:', error);
