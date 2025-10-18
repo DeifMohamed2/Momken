@@ -63,6 +63,7 @@ const getChaptersByGrade = async (req, res) => {
   try {
     const chapters = await Chapter.find({
       chapterGrade: grade,
+      isActive: true
     }).sort({ createdAt: -1 });
     console.log('chapters', chapters);
     res.json(chapters); // Send the filtered chapters as JSON

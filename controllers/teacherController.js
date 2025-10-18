@@ -421,11 +421,8 @@ const chapter_delete = async (req, res) => {
   try {
     const chapterId = req.params.chapterId;
     
-    // Soft delete - just set isActive to false
-    await Chapter.findByIdAndUpdate(chapterId, { 
-      isActive: false,
-      updatedAt: new Date()
-    });
+    // Hard delete - completely remove the chapter
+    await Chapter.findByIdAndDelete(chapterId);
     
     res.json({ success: true });
   } catch (error) {

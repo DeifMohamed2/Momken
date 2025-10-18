@@ -143,6 +143,7 @@ const chapters_get = async (req, res) => {
     // Build query with teacher filtering
     const query = {
       chapterGrade: req.userData.Grade,
+      isActive: true // Only show active chapters
     };
     
     // Add teacher filtering if student has a teacher assigned
