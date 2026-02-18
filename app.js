@@ -22,6 +22,7 @@ const homeRoutes = require('./routes/homeRoutes')
 const teacherRoutes = require('./routes/teacherRoutes')
 const studentRoutes = require('./routes/studentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 // express app
 const app = express();
 
@@ -91,6 +92,7 @@ app.use('/', homeRoutes)
 app.use('/teacher', teacherRoutes)
 app.use('/student', studentRoutes)
 app.use('/admin', adminRoutes)
+app.use('/upload', uploadRoutes)
 
 
 

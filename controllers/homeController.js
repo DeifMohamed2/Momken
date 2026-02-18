@@ -3,13 +3,10 @@ const Chapter = require('../models/Chapter');
 const Teacher = require('../models/Teacher');
 const Quiz = require('../models/Quiz');
 
-const waapi = require('@api/waapi');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const jwtSecret = process.env.JWTSECRET;
-const waapiAPI = process.env.WAAPIAPI;
-waapi.auth(`${waapiAPI}`);
 
 const home_page = async (req, res) => {
   try {

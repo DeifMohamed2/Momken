@@ -473,9 +473,8 @@
     });
     
     // Image upload functionality
-    // Cloudinary configuration
-    const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dusod9wxt/upload';
-    const CLOUDINARY_UPLOAD_PRESET = 'order_project';
+    // Local Upload Configuration
+    const UPLOAD_URL = '/upload/image';
     
     // Elements
     const imageUploadContainer = document.getElementById('imageUploadContainer');
@@ -545,9 +544,9 @@
       if (files[0]) {
         const file = files[0];
         
-        // Check file size (max 2MB)
-        if (file.size > 2 * 1024 * 1024) {
-          updateUploadStatus('error', 'حجم الملف كبير جدًا (الحد الأقصى: 2MB)');
+        // Check file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          updateUploadStatus('error', 'حجم الملف كبير جدًا (الحد الأقصى: 10MB)');
           return;
         }
         
@@ -566,15 +565,14 @@
         };
         reader.readAsDataURL(file);
         
-        // Upload to Cloudinary
-        uploadToCloudinary(file);
+        // Upload to Local Server
+        uploadToLocalServer(file);
       }
     }
     
-    function uploadToCloudinary(file) {
+    function uploadToLocalServer(file) {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
       
       // Show progress container
       progressContainer.style.display = 'block';
@@ -582,7 +580,7 @@
       updateUploadStatus('uploading', 'جاري رفع الصورة... <i class="fas fa-spinner fa-spin"></i>');
       
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', CLOUDINARY_URL, true);
+      xhr.open('POST', UPLOAD_URL, true);
       
       // Track upload progress
       xhr.upload.onprogress = function(e) {
@@ -596,10 +594,14 @@
       xhr.onload = function() {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
-          chapterIMGInput.value = response.secure_url;
-          
-          // Update status
-          updateUploadStatus('success', 'تم رفع الصورة بنجاح! <i class="fas fa-check-circle"></i>');
+          if (response.success) {
+            chapterIMGInput.value = response.secure_url;
+            
+            // Update status
+            updateUploadStatus('success', 'تم رفع الصورة بنجاح! <i class="fas fa-check-circle"></i>');
+          } else {
+            updateUploadStatus('error', response.error || 'حدث خطأ أثناء رفع الصورة. <i class="fas fa-exclamation-circle"></i>');
+          }
         } else {
           updateUploadStatus('error', 'حدث خطأ أثناء رفع الصورة. يرجى المحاولة مرة أخرى. <i class="fas fa-exclamation-circle"></i>');
         }

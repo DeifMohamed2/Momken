@@ -10,8 +10,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Cloudinary Upload Widget -->
-  <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+  <!-- Local Upload Utility -->
+  <script src="/js/local-upload.js" type="text/javascript"></script>
 </head>
 <body>
   <div class="teacher-container">
@@ -284,9 +284,8 @@
   <div class="alert-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999; width: 350px;"></div>
   
   <script>
-    // Cloudinary configuration
-    const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dusod9wxt/upload';
-    const CLOUDINARY_UPLOAD_PRESET = 'order_project';
+    // Local Upload Configuration
+    const UPLOAD_URL = '/upload/image';
     
     // Form validation
     const form = document.getElementById('videoCreateForm');
@@ -468,17 +467,16 @@
           };
           reader.readAsDataURL(file);
           
-          // Upload to Cloudinary
-          uploadToCloudinary(file);
+          // Upload to Local Server
+          uploadToLocalServer(file);
         }
       };
       input.click();
     });
     
-    function uploadToCloudinary(file) {
+    function uploadToLocalServer(file) {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
       
       // Show progress container
       const progressContainer = document.getElementById('thumbnailProgressContainer');
@@ -487,10 +485,10 @@
       progressBar.style.width = '0%';
       updateUploadStatus('uploading', 'جاري رفع الصورة... <i class="fas fa-spinner fa-spin"></i>');
       
-      console.log('Starting Cloudinary upload...');
+      console.log('Starting local upload...');
       
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', CLOUDINARY_URL, true);
+      xhr.open('POST', UPLOAD_URL, true);
       
       // Track upload progress
       xhr.upload.onprogress = function(e) {
@@ -505,24 +503,31 @@
       xhr.onload = function() {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
-          console.log('Cloudinary upload successful:', response);
-          
-          // Set the imgURL input value
-          const imgURLInput = document.getElementById('imgURL');
-          imgURLInput.value = response.secure_url;
-          console.log('Set imgURL input value to:', response.secure_url);
-          
-          // Remove any validation errors
-          imgURLInput.classList.remove('is-invalid');
-          imgURLInput.classList.add('is-valid');
-          
-          // Update status
-          updateUploadStatus('success', 'تم رفع الصورة بنجاح! <i class="fas fa-check-circle"></i>');
-          
-          // Show success message
-          showTemporaryAlert('success', 'تم رفع الصورة بنجاح!');
+          if (response.success) {
+            console.log('Local upload successful:', response);
+            
+            // Set the imgURL input value
+            const imgURLInput = document.getElementById('imgURL');
+            imgURLInput.value = response.secure_url;
+            console.log('Set imgURL input value to:', response.secure_url);
+            
+            // Remove any validation errors
+            imgURLInput.classList.remove('is-invalid');
+            imgURLInput.classList.add('is-valid');
+            
+            // Update status
+            updateUploadStatus('success', 'تم رفع الصورة بنجاح! <i class="fas fa-check-circle"></i>');
+            
+            // Show success message
+            showTemporaryAlert('success', 'تم رفع الصورة بنجاح!');
+          } else {
+            console.error('Local upload failed:', response.error);
+            updateUploadStatus('error', response.error || 'حدث خطأ أثناء رفع الصورة. <i class="fas fa-exclamation-circle"></i>');
+            showTemporaryAlert('danger', response.error || 'حدث خطأ أثناء رفع الصورة.');
+            document.getElementById('imgURL').classList.add('is-invalid');
+          }
         } else {
-          console.error('Cloudinary upload failed with status:', xhr.status);
+          console.error('Local upload failed with status:', xhr.status);
           console.error('Response:', xhr.responseText);
           updateUploadStatus('error', 'حدث خطأ أثناء رفع الصورة. يرجى المحاولة مرة أخرى. <i class="fas fa-exclamation-circle"></i>');
           showTemporaryAlert('danger', 'حدث خطأ أثناء رفع الصورة. يرجى المحاولة مرة أخرى.');
@@ -538,7 +543,7 @@
       };
       
       xhr.onerror = function() {
-        console.error('Cloudinary upload network error');
+        console.error('Local upload network error');
         updateUploadStatus('error', 'حدث خطأ في الاتصال. يرجى التحقق من اتصالك بالإنترنت. <i class="fas fa-exclamation-circle"></i>');
         showTemporaryAlert('danger', 'حدث خطأ أثناء رفع الصورة. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.');
         progressContainer.style.display = 'none';

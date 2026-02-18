@@ -285,9 +285,8 @@
 
   <script src="/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Cloudinary configuration
-    const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dusod9wxt/upload';
-    const CLOUDINARY_UPLOAD_PRESET = 'order_project';
+    // Local Upload Configuration
+    const UPLOAD_URL = '/upload/image';
 
     // Auto-generate slug from name with Arabic character handling
     document.getElementById('name').addEventListener('input', function() {
@@ -432,8 +431,8 @@
           };
           reader.readAsDataURL(file);
           
-          // Upload to Cloudinary
-          uploadToCloudinary(file, imageInputId, progressContainerId, progressBarId, uploadStatusId);
+          // Upload to Local Server
+          uploadToLocalServer(file, imageInputId, progressContainerId, progressBarId, uploadStatusId);
         }
       }
     }
@@ -443,10 +442,9 @@
       e.stopPropagation();
     }
     
-    function uploadToCloudinary(file, imageInputId, progressContainerId, progressBarId, uploadStatusId) {
+    function uploadToLocalServer(file, imageInputId, progressContainerId, progressBarId, uploadStatusId) {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
       
       // Show progress container
       const progressContainer = document.getElementById(progressContainerId);
@@ -457,7 +455,7 @@
       updateUploadStatus(uploadStatusId, 'uploading', '<i class="bi bi-arrow-repeat spin me-1"></i> جاري رفع الصورة...');
       
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', CLOUDINARY_URL, true);
+      xhr.open('POST', UPLOAD_URL, true);
       
       // Track upload progress
       xhr.upload.onprogress = function(e) {
@@ -471,15 +469,20 @@
       xhr.onload = function() {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
-          document.getElementById(imageInputId).value = response.secure_url;
-          
-          // Update status
-          updateUploadStatus(uploadStatusId, 'success', '<i class="bi bi-check-circle me-1"></i> تم رفع الصورة بنجاح!');
-          
-          // Hide progress container after a short delay
-          setTimeout(() => {
+          if (response.success) {
+            document.getElementById(imageInputId).value = response.secure_url;
+            
+            // Update status
+            updateUploadStatus(uploadStatusId, 'success', '<i class="bi bi-check-circle me-1"></i> تم رفع الصورة بنجاح!');
+            
+            // Hide progress container after a short delay
+            setTimeout(() => {
+              progressContainer.classList.add('d-none');
+            }, 1000);
+          } else {
+            updateUploadStatus(uploadStatusId, 'error', '<i class="bi bi-exclamation-triangle me-1"></i> ' + (response.error || 'حدث خطأ أثناء رفع الصورة.'));
             progressContainer.classList.add('d-none');
-          }, 1000);
+          }
         } else {
           updateUploadStatus(uploadStatusId, 'error', '<i class="bi bi-exclamation-triangle me-1"></i> حدث خطأ أثناء رفع الصورة.');
           progressContainer.classList.add('d-none');

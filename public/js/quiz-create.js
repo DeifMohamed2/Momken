@@ -119,11 +119,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Image Upload Button - Cloudinary Integration
+    // Image Upload Button - Local Upload Integration
     const uploadQuestionImageBtn = document.getElementById('uploadQuestionImageBtn');
     if (uploadQuestionImageBtn) {
         uploadQuestionImageBtn.addEventListener('click', function() {
-            openCloudinaryWidget();
+            openLocalImageUpload();
         });
     }
     
@@ -296,79 +296,81 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize empty state
     updateQuestionsDisplay();
     
-    // Cloudinary Upload Widget Function
-    function openCloudinaryWidget() {
+    // Local Image Upload Function
+    function openLocalImageUpload() {
         if (!uploadQuestionImageBtn) return;
         
-        // Disable upload button and show uploading state
-        uploadQuestionImageBtn.disabled = true;
-        uploadQuestionImageBtn.classList.add('upload-btn-uploading');
-        uploadQuestionImageBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
+        // Create file input
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/jpeg,image/png,image/gif,image/webp';
         
-        // Show progress container
-        if (uploadProgress) {
-            uploadProgress.style.display = 'block';
-            progressFill.style.width = '0%';
-            progressText.textContent = '0%';
-            uploadStatusText.textContent = 'جاري رفع الصورة...';
-        }
-        
-        const uploadWidget = cloudinary.createUploadWidget({
-            cloudName: 'dusod9wxt', // From the chapter-create.ejs file
-            uploadPreset: 'order_project', // From the chapter-create.ejs file
-            sources: ['local', 'url', 'camera'],
-            multiple: false,
-            maxFileSize: 10000000, // 10MB
-            resourceType: 'image',
-            folder: 'quiz_images',
-            clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-            styles: {
-                palette: {
-                    window: "#FFFFFF",
-                    windowBorder: "#90A0B3",
-                    tabIcon: "#4F46E5",
-                    menuIcons: "#5A616A",
-                    textDark: "#000000",
-                    textLight: "#FFFFFF",
-                    link: "#4F46E5",
-                    action: "#4F46E5",
-                    inactiveTabIcon: "#0E2F5A",
-                    error: "#F44235",
-                    inProgress: "#4F46E5",
-                    complete: "#20B832",
-                    sourceBg: "#E4EBF1"
-                },
-                fonts: {
-                    default: {
-                        active: true
-                    }
-                }
-            }
-        }, (error, result) => {
-            if (error) {
-                console.error('Upload error:', error);
-                handleUploadError();
+        input.onchange = function() {
+            if (!input.files || !input.files[0]) return;
+            
+            const file = input.files[0];
+            
+            // Validate file size (10MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('حجم الملف كبير جدًا. الحد الأقصى: 10MB');
                 return;
             }
             
-            if (result.event === 'upload-progress' && progressFill && progressText) {
-                const percent = Math.round(result.data.percent);
-                progressFill.style.width = `${percent}%`;
-                progressText.textContent = `${percent}%`;
-                uploadStatusText.textContent = `جاري الرفع... ${percent}%`;
+            // Disable upload button and show uploading state
+            uploadQuestionImageBtn.disabled = true;
+            uploadQuestionImageBtn.classList.add('upload-btn-uploading');
+            uploadQuestionImageBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
+            
+            // Show progress container
+            if (uploadProgress) {
+                uploadProgress.style.display = 'block';
+                progressFill.style.width = '0%';
+                progressText.textContent = '0%';
+                uploadStatusText.textContent = 'جاري رفع الصورة...';
             }
             
-            if (result.event === 'success') {
-                handleUploadSuccess(result.info.secure_url);
-            }
+            // Create FormData and upload
+            const formData = new FormData();
+            formData.append('file', file);
             
-            if (result.event === 'close') {
-                // Reset button if upload was cancelled
-                resetUploadButton();
-            }
-        });
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload/image', true);
+            
+            // Track upload progress
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable && progressFill && progressText) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    progressFill.style.width = `${percent}%`;
+                    progressText.textContent = `${percent}%`;
+                    uploadStatusText.textContent = `جاري الرفع... ${percent}%`;
+                }
+            };
+            
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            handleUploadSuccess(response.secure_url);
+                        } else {
+                            handleUploadError();
+                        }
+                    } catch (e) {
+                        handleUploadError();
+                    }
+                } else {
+                    handleUploadError();
+                }
+            };
+            
+            xhr.onerror = function() {
+                handleUploadError();
+            };
+            
+            xhr.send(formData);
+        };
         
-        uploadWidget.open();
+        input.click();
     }
     
     function handleUploadSuccess(imageUrl) {
