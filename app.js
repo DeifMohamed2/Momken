@@ -1,7 +1,7 @@
 require('dotenv').config()
 const express = require('express');
 const morgan = require('morgan')
-const mongoose = require('mongoose')
+const { connectDB } = require('./config/db')
 const cookieParser = require('cookie-parser')
 const MongoStore = require('connect-mongo')
 const session = require('express-session')
@@ -43,9 +43,8 @@ const path = require('path');
 
 // CONECT to mongodb
 let io
-const dbURI = 'mongodb+srv://deif:1qaz2wsx@3devway.aa4i6ga.mongodb.net/momkenAcademy?retryWrites=true&w=majority&appName=Cluster0';
-mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then((result) => {
+connectDB()
+    .then(() => {
         let server = app.listen(9520);
 
         io = socketio(server)
@@ -79,7 +78,7 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     store: MongoStore.create({
-        mongoUrl: dbURI
+        clientPromise: connectDB()
     }),
 
 }))
